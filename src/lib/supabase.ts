@@ -1,0 +1,82 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Tipos para o banco de dados
+export interface Database {
+  public: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string;
+          full_name: string;
+          farm_name: string;
+          email: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          full_name: string;
+          farm_name: string;
+          email: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          full_name?: string;
+          farm_name?: string;
+          email?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      revenues: {
+        Row: {
+          id: string;
+          user_id: string;
+          value: number;
+          description: string;
+          category: string;
+          date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          value: number;
+          description: string;
+          category: string;
+          date: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          value?: number;
+          description?: string;
+          category?: string;
+          date?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+    };
+  };
+}
+
+// Tipos específicos para as tabelas
+export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Revenue = Database['public']['Tables']['revenues']['Row'];
+export type RevenueInsert = Database['public']['Tables']['revenues']['Insert'];
+export type RevenueUpdate = Database['public']['Tables']['revenues']['Update'];
