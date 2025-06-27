@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Tractor, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Tractor, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
@@ -9,6 +9,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showDemoCredentials, setShowDemoCredentials] = useState(false);
   
   const { login, loading } = useAuth();
   const navigate = useNavigate();
@@ -42,8 +43,16 @@ export default function Login() {
         setError(result.error || 'Erro ao fazer login');
       }
     } catch (error) {
+      console.error('Erro no handleSubmit:', error);
       setError('Erro ao fazer login. Tente novamente.');
     }
+  };
+
+  const fillDemoCredentials = () => {
+    setEmail('oeduardotrafego@gmail.com');
+    setPassword('Levi@2019');
+    setError('');
+    setSuccessMessage('');
   };
 
   return (
@@ -70,10 +79,30 @@ export default function Login() {
 
             {/* Mensagem de Erro */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2">
+                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
+
+            {/* Credenciais de Demonstração */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-start space-x-2">
+                <Info className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm text-blue-700 mb-2">
+                    Para testar o sistema, você pode usar as credenciais de demonstração:
+                  </p>
+                  <button
+                    type="button"
+                    onClick={fillDemoCredentials}
+                    className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors"
+                  >
+                    Preencher credenciais de demo
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {/* Campo E-mail */}
             <div>

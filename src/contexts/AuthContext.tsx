@@ -85,7 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Função para verificar se é o usuário ilimitado
   const isUnlimitedUser = (email: string, password: string): boolean => {
-    return email.toLowerCase() === UNLIMITED_USER.email.toLowerCase() && 
+    return email.toLowerCase().trim() === UNLIMITED_USER.email.toLowerCase() && 
            password === UNLIMITED_USER.password;
   };
 
@@ -298,8 +298,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
     
     try {
-      // Verificar se é o usuário ilimitado
-      if (isUnlimitedUser(email, password)) {
+      // Limpar espaços em branco dos inputs
+      const cleanEmail = email.trim();
+      const cleanPassword = password.trim();
+      
+      // Verificar se é o usuário ilimitado PRIMEIRO
+      if (isUnlimitedUser(cleanEmail, cleanPassword)) {
         console.log('👑 Usuário ilimitado detectado - acesso garantido');
         const userProfile = UNLIMITED_USER.profile;
         
@@ -310,11 +314,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: true };
       }
 
+      // Verificar se os campos estão preenchidos
+      if (!cleanEmail || !cleanPassword) {
+        return { success: false, error: 'Por favor, preencha todos os campos.' };
+      }
+
+      // Verificar se o email tem formato válido
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        return { success: false, error: 'Por favor, insira um e-mail válido.' };
+      }
+
       // Processo normal de login para outros usuários
       console.log('🔐 Iniciando autenticação com Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: cleanEmail,
+        password: cleanPassword
       });
 
       console.log('📡 Resposta da autenticação Supabase:', {
@@ -327,20 +342,46 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (error) {
         console.error('❌ Erro na autenticação:', error);
         
+        // Mapear erros específicos para mensagens mais amigáveis
         if (error.message.includes('Invalid login credentials')) {
-          return { success: false, error: 'E-mail ou senha incorretos. Verifique suas credenciais.' };
+          return { 
+            success: false, 
+            error: 'E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.' 
+          };
         } else if (error.message.includes('Email not confirmed')) {
-          return { success: false, error: 'Por favor, confirme seu e-mail antes de fazer login.' };
+          return { 
+            success: false, 
+            error: 'Por favor, confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.' 
+          };
         } else if (error.message.includes('Too many requests')) {
-          return { success: false, error: 'Muitas tentativas de login. Tente novamente em alguns minutos.' };
+          return { 
+            success: false, 
+            error: 'Muitas tentativas de login. Aguarde alguns minutos antes de tentar novamente.' 
+          };
+        } else if (error.message.includes('User not found')) {
+          return { 
+            success: false, 
+            error: 'Usuário não encontrado. Verifique o e-mail ou cadastre-se.' 
+          };
+        } else if (error.message.includes('Invalid email')) {
+          return { 
+            success: false, 
+            error: 'E-mail inválido. Verifique o formato do e-mail.' 
+          };
         } else {
-          return { success: false, error: `Erro de autenticação: ${error.message}` };
+          return { 
+            success: false, 
+            error: `Erro de autenticação: ${error.message}` 
+          };
         }
       }
 
       if (!data.user) {
         console.error('❌ Usuário não encontrado após autenticação');
-        return { success: false, error: 'Erro interno: usuário não encontrado após autenticação.' };
+        return { 
+          success: false, 
+          error: 'Erro interno: usuário não encontrado após autenticação.' 
+        };
       }
 
       console.log('✅ Autenticação Supabase bem-sucedida, buscando perfil...');
@@ -361,14 +402,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.error('❌ Falha ao carregar perfil do usuário');
         // Se não encontrou o perfil, fazer logout do Supabase
         await supabase.auth.signOut();
-        return { success: false, error: 'Erro ao carregar dados do perfil. Tente novamente.' };
+        return { 
+          success: false, 
+          error: 'Erro ao carregar dados do perfil. Tente novamente ou entre em contato com o suporte.' 
+        };
       }
 
     } catch (error) {
       console.error('💥 Erro inesperado durante o login:', error);
       return { 
         success: false, 
-        error: 'Erro interno do sistema. Tente novamente em alguns instantes.' 
+        error: 'Erro interno do sistema. Verifique sua conexão com a internet e tente novamente.' 
       };
     } finally {
       setLoading(false);
@@ -386,13 +430,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setLoading(true);
     
     try {
+      // Limpar espaços em branco dos inputs
+      const cleanEmail = email.trim();
+      const cleanPassword = password.trim();
+      const cleanFullName = fullName.trim();
+      const cleanFarmName = farmName.trim();
+
+      // Validações básicas
+      if (!cleanEmail || !cleanPassword || !cleanFullName || !cleanFarmName) {
+        return { success: false, error: 'Por favor, preencha todos os campos.' };
+      }
+
+      // Verificar se o email tem formato válido
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        return { success: false, error: 'Por favor, insira um e-mail válido.' };
+      }
+
+      // Verificar tamanho mínimo da senha
+      if (cleanPassword.length < 6) {
+        return { success: false, error: 'A senha deve ter pelo menos 6 caracteres.' };
+      }
+
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: cleanEmail,
+        password: cleanPassword,
         options: {
           data: {
-            full_name: fullName,
-            farm_name: farmName
+            full_name: cleanFullName,
+            farm_name: cleanFarmName
           }
         }
       });
@@ -486,7 +552,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Função de recuperação de senha
   const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const cleanEmail = email.trim();
+      
+      if (!cleanEmail) {
+        return { success: false, error: 'Por favor, insira seu e-mail.' };
+      }
+
+      // Verificar se o email tem formato válido
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        return { success: false, error: 'Por favor, insira um e-mail válido.' };
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: `${window.location.origin}/reset-password`
       });
 
