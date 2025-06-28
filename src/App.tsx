@@ -12,6 +12,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import RecordRevenue from './pages/RecordRevenue';
+import RecordExpense from './pages/RecordExpense';
 
 function App() {
   return (
@@ -45,6 +46,14 @@ function App() {
             element={
               <PrivateRoute>
                 <RecordRevenue />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/record-expense" 
+            element={
+              <PrivateRoute>
+                <RecordExpense />
               </PrivateRoute>
             } 
           />

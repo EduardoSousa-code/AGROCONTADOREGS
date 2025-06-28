@@ -71,6 +71,41 @@ export interface Database {
           updated_at?: string;
         };
       };
+      expenses: {
+        Row: {
+          id: string;
+          user_id: string;
+          value: number;
+          description: string;
+          category: string;
+          activity_id: string | null;
+          date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          value: number;
+          description: string;
+          category: string;
+          activity_id?: string | null;
+          date: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          value?: number;
+          description?: string;
+          category?: string;
+          activity_id?: string | null;
+          date?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
@@ -80,3 +115,7 @@ export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Revenue = Database['public']['Tables']['revenues']['Row'];
 export type RevenueInsert = Database['public']['Tables']['revenues']['Insert'];
 export type RevenueUpdate = Database['public']['Tables']['revenues']['Update'];
+
+export type Expense = Database['public']['Tables']['expenses']['Row'];
+export type ExpenseInsert = Database['public']['Tables']['expenses']['Insert'];
+export type ExpenseUpdate = Database['public']['Tables']['expenses']['Update'];
