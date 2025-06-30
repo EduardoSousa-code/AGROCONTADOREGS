@@ -45,30 +45,30 @@ export interface Database {
           user_id: string;
           value: number;
           description: string;
-          category: string;
           date: string;
           created_at: string;
           updated_at: string;
+          activity_id: string | null;
         };
         Insert: {
           id?: string;
           user_id: string;
           value: number;
           description: string;
-          category: string;
           date: string;
           created_at?: string;
           updated_at?: string;
+          activity_id?: string | null;
         };
         Update: {
           id?: string;
           user_id?: string;
           value?: number;
           description?: string;
-          category?: string;
           date?: string;
           created_at?: string;
           updated_at?: string;
+          activity_id?: string | null;
         };
       };
       expenses: {

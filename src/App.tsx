@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import RecordRevenue from './pages/RecordRevenue';
 import RecordExpense from './pages/RecordExpense';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -54,6 +55,14 @@ function App() {
             element={
               <PrivateRoute>
                 <RecordExpense />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/reports" 
+            element={
+              <PrivateRoute>
+                <Reports />
               </PrivateRoute>
             } 
           />
