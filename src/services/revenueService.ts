@@ -29,6 +29,9 @@ export class RevenueService {
     userId: string, 
     revenueData: CreateRevenueData
   ): Promise<RevenueServiceResponse> {
+    // LOG DE DEPURAÇÃO: Verificar userId recebido
+    console.log('🔍 DEBUG - User ID recebido por createRevenue:', userId);
+    console.log('🔍 DEBUG - Dados da receita recebidos:', revenueData);
     console.log('💰 Criando nova receita:', { userId, ...revenueData });
     
     // Handle demo user
@@ -50,14 +53,24 @@ export class RevenueService {
         activity_id: revenueData.activityId || null
       };
 
+      console.log('🔍 DEBUG - Dados que serão inseridos no Supabase:', insertData);
+
       const { data, error } = await supabase
         .from('revenues')
         .insert(insertData)
         .select()
         .single();
 
+      console.log('🔍 DEBUG - Resposta do Supabase:', { data, error });
+
       if (error) {
         console.error('❌ Erro ao criar receita:', error);
+        console.error('🔍 DEBUG - Detalhes do erro:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         
         if (error.code === 'PGRST116') {
           return { 
@@ -80,6 +93,7 @@ export class RevenueService {
       }
 
       if (!data) {
+        console.error('🔍 DEBUG - Dados não retornados após inserção');
         return { 
           success: false, 
           error: 'Erro interno: dados não retornados após inserção.' 
@@ -91,6 +105,7 @@ export class RevenueService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao criar receita:', error);
+      console.error('🔍 DEBUG - Stack trace do erro:', error);
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 

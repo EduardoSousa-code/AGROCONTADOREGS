@@ -149,6 +149,11 @@ export default function RecordRevenue() {
       return;
     }
 
+    // LOG DE DEPURAÇÃO: Verificar user.id antes de enviar
+    console.log('🔍 DEBUG - User ID sendo enviado para RevenueService:', user.id);
+    console.log('🔍 DEBUG - Dados do usuário completos:', user);
+    console.log('🔍 DEBUG - Dados do formulário:', formData);
+
     setLoading(true);
     setErrors({});
     
@@ -180,6 +185,7 @@ export default function RecordRevenue() {
         
         console.log('✅ Receita salva:', result.data);
       } else {
+        console.log('❌ DEBUG - Erro retornado pelo RevenueService:', result.error);
         setErrors({ general: result.error || 'Erro ao salvar receita. Tente novamente.' });
       }
       
