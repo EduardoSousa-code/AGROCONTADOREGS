@@ -31,6 +31,15 @@ export class ExpenseService {
   ): Promise<ExpenseServiceResponse> {
     console.log('💸 Criando nova despesa:', { userId, ...expenseData });
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating expense creation');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
+    
     try {
       const insertData: ExpenseInsert = {
         user_id: userId,
@@ -99,6 +108,12 @@ export class ExpenseService {
   ): Promise<ExpensesListResponse> {
     console.log('📊 Buscando despesas do usuário:', userId);
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty expenses');
+      return { success: true, data: [] };
+    }
+    
     try {
       let query = supabase
         .from('expenses')
@@ -146,6 +161,12 @@ export class ExpenseService {
     endDate: string
   ): Promise<ExpensesListResponse> {
     console.log('📅 Buscando despesas por período:', { userId, startDate, endDate });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty expenses for period');
+      return { success: true, data: [] };
+    }
     
     try {
       const { data, error } = await supabase
@@ -213,6 +234,12 @@ export class ExpenseService {
   ): Promise<ExpensesListResponse> {
     console.log('🏷️ Buscando despesas por categoria:', { userId, category });
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty expenses for category');
+      return { success: true, data: [] };
+    }
+    
     try {
       const { data, error } = await supabase
         .from('expenses')
@@ -249,6 +276,12 @@ export class ExpenseService {
     activityId: string
   ): Promise<ExpensesListResponse> {
     console.log('🎯 Buscando despesas por atividade:', { userId, activityId });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty expenses for activity');
+      return { success: true, data: [] };
+    }
     
     try {
       const { data, error } = await supabase
@@ -287,6 +320,15 @@ export class ExpenseService {
   ): Promise<{ success: boolean; error?: string }> {
     console.log('🗑️ Deletando despesa:', { userId, expenseId });
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating expense deletion');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
+    
     try {
       const { error } = await supabase
         .from('expenses')
@@ -323,6 +365,15 @@ export class ExpenseService {
     updateData: Partial<CreateExpenseData>
   ): Promise<ExpenseServiceResponse> {
     console.log('📝 Atualizando despesa:', { userId, expenseId, updateData });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating expense update');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
     
     try {
       const updatePayload: Partial<ExpenseInsert> = {};

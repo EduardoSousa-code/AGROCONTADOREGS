@@ -30,6 +30,15 @@ export class RevenueService {
   ): Promise<RevenueServiceResponse> {
     console.log('💰 Criando nova receita:', { userId, ...revenueData });
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating revenue creation');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
+    
     try {
       const insertData: RevenueInsert = {
         user_id: userId,
@@ -97,6 +106,12 @@ export class RevenueService {
   ): Promise<RevenuesListResponse> {
     console.log('📊 Buscando receitas do usuário:', userId);
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty revenues');
+      return { success: true, data: [] };
+    }
+    
     try {
       let query = supabase
         .from('revenues')
@@ -144,6 +159,12 @@ export class RevenueService {
     endDate: string
   ): Promise<RevenuesListResponse> {
     console.log('📅 Buscando receitas por período:', { userId, startDate, endDate });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty revenues for period');
+      return { success: true, data: [] };
+    }
     
     try {
       const { data, error } = await supabase
@@ -210,6 +231,15 @@ export class RevenueService {
     revenueId: string
   ): Promise<{ success: boolean; error?: string }> {
     console.log('🗑️ Deletando receita:', { userId, revenueId });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating revenue deletion');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
     
     try {
       const { error } = await supabase

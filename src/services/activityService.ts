@@ -24,6 +24,12 @@ export class ActivityService {
   ): Promise<ActivityServiceResponse> {
     console.log('🎯 Buscando atividades do usuário:', userId);
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty activities');
+      return { success: true, data: [] };
+    }
+    
     try {
       let query = supabase
         .from('activities')
@@ -120,6 +126,12 @@ export class ActivityService {
   ): Promise<ActivityServiceResponse> {
     console.log('📊 Buscando atividades por status:', { userId, status });
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty activities for status');
+      return { success: true, data: [] };
+    }
+    
     try {
       const { data, error } = await supabase
         .from('activities')
@@ -152,6 +164,12 @@ export class ActivityService {
    */
   static async getRecentActivities(userId: string): Promise<ActivityServiceResponse> {
     console.log('⏰ Buscando atividades recentes:', userId);
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty recent activities');
+      return { success: true, data: [] };
+    }
     
     try {
       const thirtyDaysAgo = new Date();

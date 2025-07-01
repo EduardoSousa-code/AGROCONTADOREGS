@@ -20,6 +20,12 @@ export class SupplyService {
   static async getUserSupplies(userId: string): Promise<SupplyServiceResponse> {
     console.log('📦 Buscando insumos do usuário:', userId);
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty supplies');
+      return { success: true, data: [] };
+    }
+    
     try {
       const { data, error } = await supabase
         .from('supplies')
@@ -81,6 +87,12 @@ export class SupplyService {
   static async getLowStockSupplies(userId: string): Promise<SupplyServiceResponse> {
     console.log('⚠️ Buscando insumos com estoque baixo:', userId);
     
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty low stock supplies');
+      return { success: true, data: [] };
+    }
+    
     try {
       const { data, error } = await supabase
         .from('supplies')
@@ -113,6 +125,12 @@ export class SupplyService {
    */
   static async getNearExpirySupplies(userId: string, days: number = 30): Promise<SupplyServiceResponse> {
     console.log('📅 Buscando insumos próximos do vencimento:', userId);
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - returning empty near expiry supplies');
+      return { success: true, data: [] };
+    }
     
     try {
       const futureDate = new Date();
