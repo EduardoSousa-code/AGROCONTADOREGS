@@ -57,6 +57,7 @@ export default function Dashboard() {
 
     try {
       console.log('📊 Carregando dados do dashboard para usuário:', user.id);
+      console.log('🔍 DEBUG - Dados do usuário:', user);
 
       // Buscar dados em paralelo
       const [revenueResult, expenseResult, supplyResult, activityResult] = await Promise.all([
@@ -68,12 +69,16 @@ export default function Dashboard() {
 
       // Processar resultados
       if (revenueResult.success && revenueResult.data) {
+        console.log('✅ Receitas carregadas:', revenueResult.data.length, 'registros');
+        console.log('🔍 DEBUG - Primeiras receitas:', revenueResult.data.slice(0, 3));
         setRevenues(revenueResult.data);
       } else {
         console.error('Erro ao carregar receitas:', revenueResult.error);
       }
 
       if (expenseResult.success && expenseResult.data) {
+        console.log('✅ Despesas carregadas:', expenseResult.data.length, 'registros');
+        console.log('🔍 DEBUG - Primeiras despesas:', expenseResult.data.slice(0, 3));
         setExpenses(expenseResult.data);
       } else {
         console.error('Erro ao carregar despesas:', expenseResult.error);
@@ -101,21 +106,56 @@ export default function Dashboard() {
     }
   };
 
-  // Calcular dados financeiros do mês atual
+  // Calcular dados financeiros do mês atual com UTC
   const calculateFinancialData = (): FinancialData => {
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getUTCMonth();
+    const currentYear = currentDate.getUTCFullYear();
 
-    // Filtrar receitas e despesas do mês atual
+    console.log('🔍 DEBUG - Calculando dados financeiros para:', {
+      currentMonth: currentMonth + 1, // +1 porque getUTCMonth() retorna 0-11
+      currentYear,
+      totalRevenues: revenues.length,
+      totalExpenses: expenses.length
+    });
+
+    // Filtrar receitas e despesas do mês atual usando UTC
     const monthlyRevenues = revenues.filter(revenue => {
-      const revenueDate = new Date(revenue.date);
-      return revenueDate.getMonth() === currentMonth && revenueDate.getFullYear() === currentYear;
+      // Adicionar 'T00:00:00Z' para garantir que seja tratado como UTC
+      const revenueDate = new Date(revenue.date + 'T00:00:00Z');
+      const revenueMonth = revenueDate.getUTCMonth();
+      const revenueYear = revenueDate.getUTCFullYear();
+      
+      const isCurrentMonth = revenueMonth === currentMonth && revenueYear === currentYear;
+      
+      if (isCurrentMonth) {
+        console.log('🔍 DEBUG - Receita do mês atual:', {
+          date: revenue.date,
+          value: revenue.value,
+          description: revenue.description
+        });
+      }
+      
+      return isCurrentMonth;
     });
 
     const monthlyExpenses = expenses.filter(expense => {
-      const expenseDate = new Date(expense.date);
-      return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+      // Adicionar 'T00:00:00Z' para garantir que seja tratado como UTC
+      const expenseDate = new Date(expense.date + 'T00:00:00Z');
+      const expenseMonth = expenseDate.getUTCMonth();
+      const expenseYear = expenseDate.getUTCFullYear();
+      
+      const isCurrentMonth = expenseMonth === currentMonth && expenseYear === currentYear;
+      
+      if (isCurrentMonth) {
+        console.log('🔍 DEBUG - Despesa do mês atual:', {
+          date: expense.date,
+          value: expense.value,
+          description: expense.description
+        });
+      }
+      
+      return isCurrentMonth;
     });
 
     // Calcular totais
@@ -126,6 +166,16 @@ export default function Dashboard() {
     const totalRevenues = revenues.reduce((sum, revenue) => sum + revenue.value, 0);
     const totalExpenses = expenses.reduce((sum, expense) => sum + expense.value, 0);
     const currentBalance = totalRevenues - totalExpenses;
+
+    console.log('🔍 DEBUG - Resultado dos cálculos financeiros:', {
+      monthlyRevenuesCount: monthlyRevenues.length,
+      monthlyExpensesCount: monthlyExpenses.length,
+      monthlyRevenue,
+      monthlyExpensesTotal,
+      totalRevenues,
+      totalExpenses,
+      currentBalance
+    });
 
     return {
       monthlyRevenue,
@@ -139,22 +189,22 @@ export default function Dashboard() {
     return SupplyService.calculateStockSummary(supplies);
   };
 
-  // Calcular dados do gráfico financeiro
+  // Calcular dados do gráfico financeiro com UTC
   const calculateChartData = (): ChartData => {
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getUTCMonth();
+    const currentYear = currentDate.getUTCFullYear();
 
-    // Filtrar despesas do mês atual
+    // Filtrar despesas do mês atual usando UTC
     const monthlyExpenses = expenses.filter(expense => {
-      const expenseDate = new Date(expense.date);
-      return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+      const expenseDate = new Date(expense.date + 'T00:00:00Z');
+      return expenseDate.getUTCMonth() === currentMonth && expenseDate.getUTCFullYear() === currentYear;
     });
 
-    // Filtrar receitas do mês atual
+    // Filtrar receitas do mês atual usando UTC
     const monthlyRevenues = revenues.filter(revenue => {
-      const revenueDate = new Date(revenue.date);
-      return revenueDate.getMonth() === currentMonth && revenueDate.getFullYear() === currentYear;
+      const revenueDate = new Date(revenue.date + 'T00:00:00Z');
+      return revenueDate.getUTCMonth() === currentMonth && revenueDate.getUTCFullYear() === currentYear;
     });
 
     const revenue = monthlyRevenues.reduce((sum, rev) => sum + rev.value, 0);
