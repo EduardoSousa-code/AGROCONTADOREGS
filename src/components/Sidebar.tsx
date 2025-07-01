@@ -41,8 +41,8 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     },
     { 
       icon: Package, 
-      label: 'Adicionar Insumo', 
-      path: '/add-supply',
+      label: 'Estoque Insumo', 
+      path: '/supply-stock',
       color: 'bg-blue-600', 
       hoverColor: 'hover:bg-blue-700',
       textColor: 'text-blue-700',
