@@ -41,6 +41,25 @@ const UNLIMITED_USER = {
   }
 };
 
+// Função utilitária para adicionar timeout a promessas
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      reject(new Error(`Operação expirou após ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    promise
+      .then((result) => {
+        clearTimeout(timeoutId);
+        resolve(result);
+      })
+      .catch((error) => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
+  });
+};
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -89,7 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
            password === UNLIMITED_USER.password;
   };
 
-  // Função para buscar dados do perfil do usuário
+  // Função para buscar dados do perfil do usuário com timeout
   const fetchUserProfile = async (supabaseUser: SupabaseUser): Promise<User | null> => {
     console.log('🔍 Buscando perfil do usuário...', {
       userId: supabaseUser.id,
@@ -107,11 +126,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         raw_user_meta_data: supabaseUser.raw_user_meta_data
       });
 
-      const { data: profile, error } = await supabase
+      // Aplicar timeout de 8 segundos na consulta do perfil
+      const profileQuery = supabase
         .from('profiles')
         .select('*')
         .eq('id', supabaseUser.id)
         .maybeSingle();
+
+      const { data: profile, error } = await withTimeout(profileQuery, 8000);
 
       console.log('📊 Resposta da consulta Supabase:', {
         profile: profile,
@@ -154,7 +176,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Tentar criar perfil automaticamente se não existir
         console.log('🛠️ Tentando criar perfil automaticamente...');
         try {
-          const { data: newProfile, error: createError } = await supabase
+          const createProfileQuery = supabase
             .from('profiles')
             .insert({
               id: supabaseUser.id,
@@ -164,6 +186,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             })
             .select()
             .single();
+
+          const { data: newProfile, error: createError } = await withTimeout(createProfileQuery, 5000);
 
           if (createError) {
             console.error('❌ Erro ao criar perfil automaticamente:', {
@@ -188,6 +212,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         } catch (createProfileError) {
           console.error('💥 Erro inesperado ao criar perfil automaticamente:', createProfileError);
+          if (createProfileError instanceof Error && createProfileError.message.includes('expirou')) {
+            console.error('⏰ Timeout ao criar perfil automaticamente');
+          }
         }
         
         return null;
@@ -214,6 +241,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         userId: supabaseUser.id,
         timestamp: new Date().toISOString()
       });
+
+      // Verificar se é erro de timeout
+      if (error instanceof Error && error.message.includes('expirou')) {
+        console.error('⏰ Timeout ao buscar perfil do usuário');
+      }
+
       return null;
     }
   };
@@ -245,8 +278,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: true };
       }
 
-      // Para usuários normais, atualizar no Supabase
-      const { data, error } = await supabase
+      // Para usuários normais, atualizar no Supabase com timeout
+      const updateQuery = supabase
         .from('profiles')
         .update({
           full_name: fullName,
@@ -256,6 +289,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .eq('id', userId)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(updateQuery, 5000);
 
       if (error) {
         console.error('❌ Erro ao atualizar perfil:', error);
@@ -285,6 +320,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return { success: false, error: 'Erro desconhecido ao atualizar perfil' };
     } catch (error) {
       console.error('💥 Erro inesperado ao atualizar perfil:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
@@ -325,12 +368,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: false, error: 'Por favor, insira um e-mail válido.' };
       }
 
-      // Processo normal de login para outros usuários
+      // Processo normal de login para outros usuários com timeout
       console.log('🔐 Iniciando autenticação com Supabase...');
-      const { data, error } = await supabase.auth.signInWithPassword({
+      
+      const authQuery = supabase.auth.signInWithPassword({
         email: cleanEmail,
         password: cleanPassword
       });
+
+      const { data, error } = await withTimeout(authQuery, 10000); // 10 segundos para autenticação
 
       console.log('📡 Resposta da autenticação Supabase:', {
         user: data.user ? { id: data.user.id, email: data.user.email } : null,
@@ -386,7 +432,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       console.log('✅ Autenticação Supabase bem-sucedida, buscando perfil...');
       
-      // Buscar perfil do usuário
+      // Buscar perfil do usuário com timeout
       const userProfile = await fetchUserProfile(data.user);
       
       if (userProfile) {
@@ -404,12 +450,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await supabase.auth.signOut();
         return { 
           success: false, 
-          error: 'Erro ao carregar dados do perfil. Tente novamente ou entre em contato com o suporte.' 
+          error: 'Erro ao carregar dados do perfil. Verifique sua conexão e tente novamente, ou entre em contato com o suporte.' 
         };
       }
 
     } catch (error) {
       console.error('💥 Erro inesperado durante o login:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'A operação demorou muito para responder. Verifique sua conexão com a internet e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Verifique sua conexão com a internet e tente novamente.' 
@@ -452,7 +506,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: false, error: 'A senha deve ter pelo menos 6 caracteres.' };
       }
 
-      const { data, error } = await supabase.auth.signUp({
+      const signUpQuery = supabase.auth.signUp({
         email: cleanEmail,
         password: cleanPassword,
         options: {
@@ -462,6 +516,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
         }
       });
+
+      const { data, error } = await withTimeout(signUpQuery, 10000); // 10 segundos para registro
 
       if (error) {
         // Only log unexpected errors to console, not expected ones like "User already registered"
@@ -515,6 +571,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return { success: false, error: 'Erro desconhecido no registro' };
     } catch (error) {
       console.error('💥 Erro inesperado no registro:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'A operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { success: false, error: 'Erro interno do servidor' };
     } finally {
       setLoading(false);
@@ -564,9 +628,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: false, error: 'Por favor, insira um e-mail válido.' };
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+      const resetQuery = supabase.auth.resetPasswordForEmail(cleanEmail, {
         redirectTo: `${window.location.origin}/reset-password`
       });
+
+      const { error } = await withTimeout(resetQuery, 8000); // 8 segundos para reset
 
       if (error) {
         console.error('❌ Erro ao enviar email de recuperação:', error);
@@ -576,6 +642,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return { success: true };
     } catch (error) {
       console.error('💥 Erro inesperado ao enviar email de recuperação:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'A operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { success: false, error: 'Erro interno do servidor' };
     }
   };
@@ -606,7 +680,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Verificar sessão no Supabase (apenas para usuários normais)
       try {
         console.log('🔍 Verificando sessão ativa no Supabase...');
-        const { data: { session } } = await supabase.auth.getSession();
+        
+        const sessionQuery = supabase.auth.getSession();
+        const { data: { session } } = await withTimeout(sessionQuery, 5000);
         
         console.log('📊 Resultado da verificação de sessão:', {
           hasSession: !!session,
@@ -647,6 +723,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
           errorMessage: error instanceof Error ? error.message : 'Erro desconhecido',
           timestamp: new Date().toISOString()
         });
+        
+        // Se for timeout, manter dados locais se existirem
+        if (error instanceof Error && error.message.includes('expirou')) {
+          console.log('⏰ Timeout ao verificar sessão - mantendo dados locais se existirem');
+          if (!storedUser || storedUser.email === UNLIMITED_USER.email) {
+            return; // Manter estado atual
+          }
+        }
         
         // Clear local authentication state when Supabase reports session issues
         console.log('🧹 Limpando estado local devido a erro de sessão');
