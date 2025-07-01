@@ -41,8 +41,8 @@ const UNLIMITED_USER = {
   }
 };
 
-// Função utilitária para adicionar timeout a promessas
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+// Função utilitária para adicionar timeout a promessas com timeout mais curto
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 15000): Promise<T> => {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new Error(`Operação expirou após ${timeoutMs}ms`));
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
            password === UNLIMITED_USER.password;
   };
 
-  // Função para buscar dados do perfil do usuário com timeout
+  // Função para buscar dados do perfil do usuário com timeout mais curto e melhor tratamento de erros
   const fetchUserProfile = async (supabaseUser: SupabaseUser): Promise<User | null> => {
     console.log('🔍 Buscando perfil do usuário...', {
       userId: supabaseUser.id,
@@ -121,19 +121,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       console.log('🔑 Dados do usuário Supabase:', {
         id: supabaseUser.id,
         email: supabaseUser.email,
-        created_at: supabaseUser.created_at,
-        user_metadata: supabaseUser.user_metadata,
-        raw_user_meta_data: supabaseUser.raw_user_meta_data
+        created_at: supabaseUser.created_at
       });
 
-      // Aplicar timeout de 60 segundos na consulta do perfil
+      // Aplicar timeout de 15 segundos na consulta do perfil (reduzido de 60s)
       const profileQuery = supabase
         .from('profiles')
         .select('*')
         .eq('id', supabaseUser.id)
         .maybeSingle();
 
-      const { data: profile, error } = await withTimeout(profileQuery, 60000);
+      const { data: profile, error } = await withTimeout(profileQuery, 15000);
 
       console.log('📊 Resposta da consulta Supabase:', {
         profile: profile,
@@ -170,9 +168,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           timestamp: new Date().toISOString()
         });
         
-        // Verificar se o usuário existe na tabela auth.users
-        console.log('🔍 Verificando se usuário existe na tabela auth...');
-        
         // Tentar criar perfil automaticamente se não existir
         console.log('🛠️ Tentando criar perfil automaticamente...');
         try {
@@ -187,7 +182,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .select()
             .single();
 
-          const { data: newProfile, error: createError } = await withTimeout(createProfileQuery, 60000);
+          const { data: newProfile, error: createError } = await withTimeout(createProfileQuery, 15000);
 
           if (createError) {
             console.error('❌ Erro ao criar perfil automaticamente:', {
@@ -278,7 +273,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: true };
       }
 
-      // Para usuários normais, atualizar no Supabase com timeout
+      // Para usuários normais, atualizar no Supabase com timeout reduzido
       const updateQuery = supabase
         .from('profiles')
         .update({
@@ -290,7 +285,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(updateQuery, 60000);
+      const { data, error } = await withTimeout(updateQuery, 15000);
 
       if (error) {
         console.error('❌ Erro ao atualizar perfil:', error);
@@ -368,7 +363,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { success: false, error: 'Por favor, insira um e-mail válido.' };
       }
 
-      // Processo normal de login para outros usuários com timeout
+      // Processo normal de login para outros usuários com timeout reduzido
       console.log('🔐 Iniciando autenticação com Supabase...');
       
       const authQuery = supabase.auth.signInWithPassword({
@@ -376,7 +371,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password: cleanPassword
       });
 
-      const { data, error } = await withTimeout(authQuery, 60000); // 60 segundos para autenticação
+      const { data, error } = await withTimeout(authQuery, 15000); // Reduzido para 15 segundos
 
       console.log('📡 Resposta da autenticação Supabase:', {
         user: data.user ? { id: data.user.id, email: data.user.email } : null,
@@ -432,7 +427,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       console.log('✅ Autenticação Supabase bem-sucedida, buscando perfil...');
       
-      // Buscar perfil do usuário com timeout
+      // Buscar perfil do usuário com timeout reduzido
       const userProfile = await fetchUserProfile(data.user);
       
       if (userProfile) {
@@ -517,7 +512,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       });
 
-      const { data, error } = await withTimeout(signUpQuery, 60000); // 60 segundos para registro
+      const { data, error } = await withTimeout(signUpQuery, 15000); // Reduzido para 15 segundos
 
       if (error) {
         // Only log unexpected errors to console, not expected ones like "User already registered"
@@ -632,7 +627,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         redirectTo: `${window.location.origin}/reset-password`
       });
 
-      const { error } = await withTimeout(resetQuery, 60000); // 60 segundos para reset
+      const { error } = await withTimeout(resetQuery, 15000); // Reduzido para 15 segundos
 
       if (error) {
         console.error('❌ Erro ao enviar email de recuperação:', error);
@@ -682,7 +677,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('🔍 Verificando sessão ativa no Supabase...');
         
         const sessionQuery = supabase.auth.getSession();
-        const { data: { session } } = await withTimeout(sessionQuery, 60000);
+        const { data: { session } } = await withTimeout(sessionQuery, 15000);
         
         console.log('📊 Resultado da verificação de sessão:', {
           hasSession: !!session,
