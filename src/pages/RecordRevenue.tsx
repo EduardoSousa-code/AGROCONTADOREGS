@@ -26,13 +26,18 @@ interface RevenueFormData {
   activityId: string;
 }
 
+interface Message {
+  type: 'success' | 'error';
+  text: string;
+}
+
 export default function RecordRevenue() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
-  const [successMessage, setSuccessMessage] = useState('');
+  const [message, setMessage] = useState<Message | null>(null);
   const [activities, setActivities] = useState<ActivityType[]>([]);
   
   const [formData, setFormData] = useState<RevenueFormData>({
@@ -145,7 +150,7 @@ export default function RecordRevenue() {
     }
 
     if (!user) {
-      setErrors({ general: 'Usuário não autenticado. Faça login novamente.' });
+      setMessage({ type: 'error', text: 'Usuário não autenticado. Faça login novamente.' });
       return;
     }
 
@@ -156,6 +161,7 @@ export default function RecordRevenue() {
 
     setLoading(true);
     setErrors({});
+    setMessage(null);
     
     try {
       const numericValue = parseFloat(formData.value.replace(',', '.'));
@@ -169,7 +175,7 @@ export default function RecordRevenue() {
       });
       
       if (result.success) {
-        setSuccessMessage('Receita lançada com sucesso!');
+        setMessage({ type: 'success', text: 'Receita lançada com sucesso!' });
         
         // Limpar formulário após sucesso
         setFormData({
@@ -181,17 +187,17 @@ export default function RecordRevenue() {
         });
         
         // Remover mensagem de sucesso após 3 segundos
-        setTimeout(() => setSuccessMessage(''), 3000);
+        setTimeout(() => setMessage(null), 3000);
         
         console.log('✅ Receita salva:', result.data);
       } else {
         console.log('❌ DEBUG - Erro retornado pelo RevenueService:', result.error);
-        setErrors({ general: result.error || 'Erro ao salvar receita. Tente novamente.' });
+        setMessage({ type: 'error', text: result.error || 'Erro ao salvar receita. Tente novamente.' });
       }
       
     } catch (error) {
       console.error('💥 Erro inesperado ao salvar receita:', error);
-      setErrors({ general: 'Erro interno do sistema. Tente novamente.' });
+      setMessage({ type: 'error', text: 'Erro interno do sistema. Tente novamente.' });
     } finally {
       setLoading(false);
     }
@@ -248,17 +254,18 @@ export default function RecordRevenue() {
                 </div>
               </div>
 
-              {/* Mensagem de Sucesso */}
-              {successMessage && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-                  <p className="text-green-600 font-medium">{successMessage}</p>
-                </div>
-              )}
-
-              {/* Mensagem de Erro Geral */}
-              {errors.general && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                  <p className="text-red-600">{errors.general}</p>
+              {/* Mensagem Unificada */}
+              {message && (
+                <div className={`rounded-lg p-4 mb-6 ${
+                  message.type === 'success' 
+                    ? 'bg-green-50 border border-green-200' 
+                    : 'bg-red-50 border border-red-200'
+                }`}>
+                  <p className={`font-medium ${
+                    message.type === 'success' ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {message.text}
+                  </p>
                 </div>
               )}
 
