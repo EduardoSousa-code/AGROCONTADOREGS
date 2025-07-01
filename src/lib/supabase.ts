@@ -64,33 +64,33 @@ export interface Database {
           user_id: string;
           value: number;
           description: string;
-          category: string;
           date: string;
           created_at: string;
           updated_at: string;
           activity_id: string | null;
+          category: string;
         };
         Insert: {
           id?: string;
           user_id: string;
           value: number;
           description: string;
-          category: string;
           date: string;
           created_at?: string;
           updated_at?: string;
           activity_id?: string | null;
+          category: string;
         };
         Update: {
           id?: string;
           user_id?: string;
           value?: number;
           description?: string;
-          category?: string;
           date?: string;
           created_at?: string;
           updated_at?: string;
           activity_id?: string | null;
+          category?: string;
         };
       };
       expenses: {
