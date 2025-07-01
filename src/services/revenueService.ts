@@ -6,6 +6,7 @@ export interface CreateRevenueData {
   description: string;
   category: string;
   date: string;
+  activityId?: string | null;
 }
 
 export interface RevenueServiceResponse {
@@ -45,7 +46,8 @@ export class RevenueService {
         value: revenueData.value,
         description: revenueData.description.trim(),
         category: revenueData.category,
-        date: revenueData.date
+        date: revenueData.date,
+        activity_id: revenueData.activityId || null
       };
 
       const { data, error } = await supabase

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
@@ -8,32 +8,39 @@ import {
   Tag, 
   Save, 
   ArrowLeft,
-  Loader2
+  Loader2,
+  Activity
 } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { RevenueService } from '../services/revenueService';
+import { ActivityService } from '../services/activityService';
+import type { Activity as ActivityType } from '../lib/supabase';
 
 interface RevenueFormData {
   value: string;
   description: string;
   date: string;
   category: string;
+  activityId: string;
 }
 
 export default function RecordRevenue() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [loadingActivities, setLoadingActivities] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [activities, setActivities] = useState<ActivityType[]>([]);
   
   const [formData, setFormData] = useState<RevenueFormData>({
     value: '',
     description: '',
     date: new Date().toISOString().split('T')[0], // Data atual
-    category: ''
+    category: '',
+    activityId: ''
   });
 
   // Categorias de receita comuns para fazendas
@@ -48,6 +55,33 @@ export default function RecordRevenue() {
     'Subsídios Governamentais',
     'Outros'
   ];
+
+  // Buscar atividades do usuário
+  const fetchActivities = async () => {
+    if (!user) return;
+
+    setLoadingActivities(true);
+    try {
+      const result = await ActivityService.getUserActivities(user.id);
+      
+      if (result.success && result.data) {
+        setActivities(result.data);
+        console.log('✅ Atividades carregadas:', result.data.length);
+      } else {
+        console.error('Erro ao carregar atividades:', result.error);
+        // Não mostrar erro para o usuário, apenas log
+      }
+    } catch (error) {
+      console.error('💥 Erro inesperado ao carregar atividades:', error);
+    } finally {
+      setLoadingActivities(false);
+    }
+  };
+
+  // Carregar atividades quando o componente montar
+  useEffect(() => {
+    fetchActivities();
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -125,7 +159,8 @@ export default function RecordRevenue() {
         value: numericValue,
         description: formData.description.trim(),
         category: formData.category,
-        date: formData.date
+        date: formData.date,
+        activityId: formData.activityId || null
       });
       
       if (result.success) {
@@ -136,7 +171,8 @@ export default function RecordRevenue() {
           value: '',
           description: '',
           date: new Date().toISOString().split('T')[0],
-          category: ''
+          category: '',
+          activityId: ''
         });
         
         // Remover mensagem de sucesso após 3 segundos
@@ -304,6 +340,47 @@ export default function RecordRevenue() {
                   )}
                 </div>
 
+                {/* Atividade */}
+                <div className="space-y-2">
+                  <label htmlFor="activityId" className="block text-sm font-medium text-green-700">
+                    Atividade
+                    <span className="text-xs text-gray-500 ml-2">(Opcional)</span>
+                  </label>
+                  <div className="relative">
+                    <Activity className="absolute left-3 top-3 h-5 w-5 text-green-500" />
+                    <select
+                      id="activityId"
+                      name="activityId"
+                      value={formData.activityId}
+                      onChange={handleInputChange}
+                      disabled={loading || loadingActivities}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                        errors.activityId ? 'border-red-300' : 'border-green-200'
+                      }`}
+                    >
+                      <option value="">Selecione uma atividade (opcional)</option>
+                      {activities.map((activity) => (
+                        <option key={activity.id} value={activity.id}>
+                          {activity.name} - {activity.status === 'planejada' ? 'Planejada' : 
+                           activity.status === 'em_andamento' ? 'Em Andamento' : 
+                           activity.status === 'concluida' ? 'Concluída' : 'Cancelada'}
+                        </option>
+                      ))}
+                    </select>
+                    {loadingActivities && (
+                      <div className="absolute right-3 top-3">
+                        <Loader2 className="h-5 w-5 animate-spin text-green-500" />
+                      </div>
+                    )}
+                  </div>
+                  {errors.activityId && (
+                    <p className="text-sm text-red-600">{errors.activityId}</p>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Vincule esta receita a uma atividade específica para melhor controle
+                  </p>
+                </div>
+
                 {/* Descrição */}
                 <div className="space-y-2">
                   <label htmlFor="description" className="block text-sm font-medium text-green-700">
@@ -375,6 +452,7 @@ export default function RecordRevenue() {
                 <li>• <strong>Seja específico:</strong> Detalhe a origem da receita para melhor controle</li>
                 <li>• <strong>Data correta:</strong> Use sempre a data real da transação</li>
                 <li>• <strong>Categoria adequada:</strong> Escolha a categoria que melhor representa a receita</li>
+                <li>• <strong>Vincule à atividade:</strong> Conecte receitas às atividades correspondentes para análises detalhadas</li>
                 <li>• <strong>Documentação:</strong> Mantenha sempre os comprovantes das vendas</li>
                 <li>• <strong>Valores precisos:</strong> Use vírgula ou ponto para separar decimais (ex: 1500,50)</li>
               </ul>
