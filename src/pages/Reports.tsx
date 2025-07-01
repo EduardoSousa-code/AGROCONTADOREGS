@@ -224,7 +224,7 @@ export default function Reports() {
       <div className="flex flex-1">
         <Sidebar />
         
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
           <div className="max-w-7xl mx-auto">
             {/* Botão Voltar */}
             <button
@@ -236,14 +236,14 @@ export default function Reports() {
             </button>
 
             {/* Cabeçalho da Página */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border border-orange-100 mb-8">
-              <div className="flex items-center justify-between mb-6">
+            <div className="bg-white rounded-xl shadow-lg p-4 lg:p-8 border border-orange-100 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
                 <div className="flex items-center space-x-4">
                   <div className="bg-orange-600 p-4 rounded-full">
                     <FileText className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-3xl font-bold text-orange-800">Relatórios Financeiros</h1>
+                    <h1 className="text-2xl lg:text-3xl font-bold text-orange-800">Relatórios Financeiros</h1>
                     <p className="text-orange-600">Visualize e exporte relatórios detalhados da sua propriedade</p>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function Reports() {
                 <div className="flex items-end">
                   <button
                     onClick={() => setDateFilter({ startDate: '', endDate: '' })}
-                    className="flex items-center px-4 py-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors font-medium"
+                    className="w-full md:w-auto flex items-center justify-center px-4 py-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors font-medium"
                   >
                     <Filter className="h-5 w-5 mr-2" />
                     Limpar Filtros
@@ -320,7 +320,7 @@ export default function Reports() {
             </div>
 
             {/* Conteúdo do Relatório */}
-            <div ref={reportRef} className="bg-white rounded-xl shadow-lg border border-orange-100 p-8">
+            <div ref={reportRef} className="bg-white rounded-xl shadow-lg border border-orange-100 p-4 lg:p-8">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-orange-600 mr-3" />
@@ -330,7 +330,7 @@ export default function Reports() {
                 <>
                   {/* Cabeçalho do Relatório */}
                   <div className="text-center mb-8 border-b border-gray-200 pb-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Relatório Financeiro</h2>
+                    <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">Relatório Financeiro</h2>
                     <p className="text-gray-600">{user.farmName}</p>
                     <p className="text-sm text-gray-500">
                       Gerado em {new Date().toLocaleDateString('pt-BR')} às {new Date().toLocaleTimeString('pt-BR')}
@@ -344,61 +344,61 @@ export default function Reports() {
 
                   {/* Resumo Financeiro */}
                   <div className="mb-8">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4 flex items-center">
                       <BarChart3 className="h-6 w-6 mr-2 text-orange-600" />
                       Resumo Financeiro
                     </h3>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                       <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                         <div className="flex items-center justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="text-sm text-green-600 font-medium">Total de Receitas</p>
-                            <p className="text-2xl font-bold text-green-800">{formatCurrency(summary.totalRevenues)}</p>
+                            <p className="text-xl lg:text-2xl font-bold text-green-800 truncate">{formatCurrency(summary.totalRevenues)}</p>
                             <p className="text-xs text-green-600">{summary.revenueCount} lançamentos</p>
                           </div>
-                          <TrendingUp className="h-8 w-8 text-green-600" />
+                          <TrendingUp className="h-6 w-6 lg:h-8 lg:w-8 text-green-600 flex-shrink-0 ml-2" />
                         </div>
                       </div>
 
                       <div className="bg-red-50 rounded-lg p-4 border border-red-200">
                         <div className="flex items-center justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="text-sm text-red-600 font-medium">Total de Despesas</p>
-                            <p className="text-2xl font-bold text-red-800">{formatCurrency(summary.totalExpenses)}</p>
+                            <p className="text-xl lg:text-2xl font-bold text-red-800 truncate">{formatCurrency(summary.totalExpenses)}</p>
                             <p className="text-xs text-red-600">{summary.expenseCount} lançamentos</p>
                           </div>
-                          <TrendingDown className="h-8 w-8 text-red-600" />
+                          <TrendingDown className="h-6 w-6 lg:h-8 lg:w-8 text-red-600 flex-shrink-0 ml-2" />
                         </div>
                       </div>
 
                       <div className={`${summary.netProfit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'} rounded-lg p-4 border`}>
                         <div className="flex items-center justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className={`text-sm font-medium ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                               Lucro Líquido
                             </p>
-                            <p className={`text-2xl font-bold ${summary.netProfit >= 0 ? 'text-blue-800' : 'text-orange-800'}`}>
+                            <p className={`text-xl lg:text-2xl font-bold ${summary.netProfit >= 0 ? 'text-blue-800' : 'text-orange-800'} truncate`}>
                               {formatCurrency(summary.netProfit)}
                             </p>
                             <p className={`text-xs ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                               {summary.netProfit >= 0 ? 'Lucro' : 'Prejuízo'}
                             </p>
                           </div>
-                          <DollarSign className={`h-8 w-8 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
+                          <DollarSign className={`h-6 w-6 lg:h-8 lg:w-8 ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'} flex-shrink-0 ml-2`} />
                         </div>
                       </div>
 
                       <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <div className="flex items-center justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="text-sm text-gray-600 font-medium">Margem de Lucro</p>
-                            <p className="text-2xl font-bold text-gray-800">
+                            <p className="text-xl lg:text-2xl font-bold text-gray-800 truncate">
                               {summary.totalRevenues > 0 ? ((summary.netProfit / summary.totalRevenues) * 100).toFixed(1) : '0.0'}%
                             </p>
                             <p className="text-xs text-gray-600">Sobre receitas</p>
                           </div>
-                          <PieChart className="h-8 w-8 text-gray-600" />
+                          <PieChart className="h-6 w-6 lg:h-8 lg:w-8 text-gray-600 flex-shrink-0 ml-2" />
                         </div>
                       </div>
                     </div>
@@ -407,24 +407,24 @@ export default function Reports() {
                   {/* Receitas por Categoria */}
                   {revenueCategorySummary.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">Receitas por Categoria</h3>
+                      <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">Receitas por Categoria</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full border-collapse border border-gray-300">
                           <thead>
                             <tr className="bg-green-50">
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-green-800">Categoria</th>
-                              <th className="border border-gray-300 px-4 py-2 text-right font-semibold text-green-800">Valor</th>
-                              <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-green-800">Quantidade</th>
-                              <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-green-800">Percentual</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Categoria</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-semibold text-green-800 text-sm lg:text-base">Valor</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-center font-semibold text-green-800 text-sm lg:text-base">Qtd</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-center font-semibold text-green-800 text-sm lg:text-base">%</th>
                             </tr>
                           </thead>
                           <tbody>
                             {revenueCategorySummary.map((category, index) => (
                               <tr key={index} className="hover:bg-gray-50">
-                                <td className="border border-gray-300 px-4 py-2">{category.category}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-right font-medium">{formatCurrency(category.total)}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">{category.count}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">{category.percentage.toFixed(1)}%</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{category.category}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-medium text-sm lg:text-base">{formatCurrency(category.total)}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-center text-sm lg:text-base">{category.count}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-center text-sm lg:text-base">{category.percentage.toFixed(1)}%</td>
                               </tr>
                             ))}
                           </tbody>
@@ -436,24 +436,24 @@ export default function Reports() {
                   {/* Despesas por Categoria */}
                   {expenseCategorySummary.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">Despesas por Categoria</h3>
+                      <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">Despesas por Categoria</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full border-collapse border border-gray-300">
                           <thead>
                             <tr className="bg-red-50">
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-red-800">Categoria</th>
-                              <th className="border border-gray-300 px-4 py-2 text-right font-semibold text-red-800">Valor</th>
-                              <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-red-800">Quantidade</th>
-                              <th className="border border-gray-300 px-4 py-2 text-center font-semibold text-red-800">Percentual</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Categoria</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-semibold text-red-800 text-sm lg:text-base">Valor</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-center font-semibold text-red-800 text-sm lg:text-base">Qtd</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-center font-semibold text-red-800 text-sm lg:text-base">%</th>
                             </tr>
                           </thead>
                           <tbody>
                             {expenseCategorySummary.map((category, index) => (
                               <tr key={index} className="hover:bg-gray-50">
-                                <td className="border border-gray-300 px-4 py-2">{category.category}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-right font-medium">{formatCurrency(category.total)}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">{category.count}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-center">{category.percentage.toFixed(1)}%</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{category.category}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-medium text-sm lg:text-base">{formatCurrency(category.total)}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-center text-sm lg:text-base">{category.count}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-center text-sm lg:text-base">{category.percentage.toFixed(1)}%</td>
                               </tr>
                             ))}
                           </tbody>
@@ -465,24 +465,24 @@ export default function Reports() {
                   {/* Detalhamento de Receitas */}
                   {revenues.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">Detalhamento de Receitas</h3>
+                      <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">Detalhamento de Receitas</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full border-collapse border border-gray-300">
                           <thead>
                             <tr className="bg-green-50">
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-green-800">Data</th>
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-green-800">Descrição</th>
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-green-800">Categoria</th>
-                              <th className="border border-gray-300 px-4 py-2 text-right font-semibold text-green-800">Valor</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Data</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Descrição</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Categoria</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-semibold text-green-800 text-sm lg:text-base">Valor</th>
                             </tr>
                           </thead>
                           <tbody>
                             {revenues.map((revenue, index) => (
                               <tr key={index} className="hover:bg-gray-50">
-                                <td className="border border-gray-300 px-4 py-2">{formatDate(revenue.date)}</td>
-                                <td className="border border-gray-300 px-4 py-2">{revenue.description}</td>
-                                <td className="border border-gray-300 px-4 py-2">{revenue.category}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-right font-medium">{formatCurrency(revenue.value)}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base whitespace-nowrap">{formatDate(revenue.date)}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{revenue.description}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{revenue.category}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-medium text-sm lg:text-base whitespace-nowrap">{formatCurrency(revenue.value)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -494,24 +494,24 @@ export default function Reports() {
                   {/* Detalhamento de Despesas */}
                   {expenses.length > 0 && (
                     <div className="mb-8">
-                      <h3 className="text-xl font-bold text-gray-800 mb-4">Detalhamento de Despesas</h3>
+                      <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">Detalhamento de Despesas</h3>
                       <div className="overflow-x-auto">
                         <table className="w-full border-collapse border border-gray-300">
                           <thead>
                             <tr className="bg-red-50">
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-red-800">Data</th>
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-red-800">Descrição</th>
-                              <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-red-800">Categoria</th>
-                              <th className="border border-gray-300 px-4 py-2 text-right font-semibold text-red-800">Valor</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Data</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Descrição</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Categoria</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-semibold text-red-800 text-sm lg:text-base">Valor</th>
                             </tr>
                           </thead>
                           <tbody>
                             {expenses.map((expense, index) => (
                               <tr key={index} className="hover:bg-gray-50">
-                                <td className="border border-gray-300 px-4 py-2">{formatDate(expense.date)}</td>
-                                <td className="border border-gray-300 px-4 py-2">{expense.description}</td>
-                                <td className="border border-gray-300 px-4 py-2">{expense.category}</td>
-                                <td className="border border-gray-300 px-4 py-2 text-right font-medium">{formatCurrency(expense.value)}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base whitespace-nowrap">{formatDate(expense.date)}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{expense.description}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{expense.category}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-medium text-sm lg:text-base whitespace-nowrap">{formatCurrency(expense.value)}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -525,7 +525,7 @@ export default function Reports() {
                     <div className="text-center py-12">
                       <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                       <h3 className="text-lg font-semibold text-gray-600 mb-2">Nenhum dado financeiro encontrado</h3>
-                      <p className="text-gray-500">
+                      <p className="text-gray-500 text-sm lg:text-base">
                         {dateFilter.startDate && dateFilter.endDate 
                           ? 'Não há registros no período selecionado.' 
                           : 'Comece lançando suas receitas e despesas para gerar relatórios.'
@@ -536,7 +536,7 @@ export default function Reports() {
 
                   {/* Rodapé do Relatório */}
                   <div className="border-t border-gray-200 pt-6 mt-8">
-                    <div className="text-center text-sm text-gray-500">
+                    <div className="text-center text-xs lg:text-sm text-gray-500">
                       <p>Relatório gerado pelo AgroContador - Sistema de Gestão Rural</p>
                       <p>© 2024 AgroContador - Desenvolvido para o campo brasileiro</p>
                     </div>
