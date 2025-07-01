@@ -42,7 +42,7 @@ const UNLIMITED_USER = {
 };
 
 // Função utilitária para adicionar timeout a promessas com timeout aumentado para 120 segundos
-const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 120000): Promise<T> => {
+const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number = 120000): Promise<T> => {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new Error(`Operação expirou após ${timeoutMs}ms`));
