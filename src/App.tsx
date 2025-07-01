@@ -14,6 +14,7 @@ import Profile from './pages/Profile';
 import RecordRevenue from './pages/RecordRevenue';
 import RecordExpense from './pages/RecordExpense';
 import AddSupply from './pages/AddSupply';
+import NewActivity from './pages/NewActivity';
 import Reports from './pages/Reports';
 
 function App() {
@@ -64,6 +65,14 @@ function App() {
             element={
               <PrivateRoute>
                 <AddSupply />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/new-activity" 
+            element={
+              <PrivateRoute>
+                <NewActivity />
               </PrivateRoute>
             } 
           />

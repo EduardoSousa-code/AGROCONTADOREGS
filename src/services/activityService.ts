@@ -1,7 +1,21 @@
 import { supabase } from '../lib/supabase';
-import type { Activity } from '../lib/supabase';
+import type { ActivityInsert, Activity } from '../lib/supabase';
+
+export interface CreateActivityData {
+  name: string;
+  description?: string | null;
+  startDate: string;
+  endDate?: string | null;
+  status: string;
+}
 
 export interface ActivityServiceResponse {
+  success: boolean;
+  data?: Activity;
+  error?: string;
+}
+
+export interface ActivitiesListResponse {
   success: boolean;
   data?: Activity[];
   error?: string;
@@ -16,12 +30,88 @@ export interface ActivityItem {
 
 export class ActivityService {
   /**
+   * Criar uma nova atividade
+   */
+  static async createActivity(
+    userId: string, 
+    activityData: CreateActivityData
+  ): Promise<ActivityServiceResponse> {
+    console.log('🎯 Criando nova atividade:', { userId, ...activityData });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating activity creation');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
+    
+    try {
+      const insertData: ActivityInsert = {
+        user_id: userId,
+        name: activityData.name.trim(),
+        description: activityData.description?.trim() || null,
+        start_date: activityData.startDate,
+        end_date: activityData.endDate || null,
+        status: activityData.status
+      };
+
+      const { data, error } = await supabase
+        .from('activities')
+        .insert(insertData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao criar atividade:', error);
+        
+        if (error.code === 'PGRST116') {
+          return { 
+            success: false, 
+            error: 'Erro de permissão. Verifique se você está logado.' 
+          };
+        }
+        
+        if (error.message.includes('check constraint')) {
+          return { 
+            success: false, 
+            error: 'Dados inválidos. Verifique se a data de fim é posterior à data de início.' 
+          };
+        }
+        
+        return { 
+          success: false, 
+          error: 'Erro ao salvar atividade. Tente novamente.' 
+        };
+      }
+
+      if (!data) {
+        return { 
+          success: false, 
+          error: 'Erro interno: dados não retornados após inserção.' 
+        };
+      }
+
+      console.log('✅ Atividade criada com sucesso:', data);
+      return { success: true, data };
+
+    } catch (error) {
+      console.error('💥 Erro inesperado ao criar atividade:', error);
+      return { 
+        success: false, 
+        error: 'Erro interno do sistema. Tente novamente.' 
+      };
+    }
+  }
+
+  /**
    * Buscar atividades do usuário
    */
   static async getUserActivities(
     userId: string,
     limit?: number
-  ): Promise<ActivityServiceResponse> {
+  ): Promise<ActivitiesListResponse> {
     console.log('🎯 Buscando atividades do usuário:', userId);
     
     // Handle demo user
@@ -123,7 +213,7 @@ export class ActivityService {
   static async getActivitiesByStatus(
     userId: string,
     status: string
-  ): Promise<ActivityServiceResponse> {
+  ): Promise<ActivitiesListResponse> {
     console.log('📊 Buscando atividades por status:', { userId, status });
     
     // Handle demo user
@@ -162,7 +252,7 @@ export class ActivityService {
   /**
    * Buscar atividades recentes (últimos 30 dias)
    */
-  static async getRecentActivities(userId: string): Promise<ActivityServiceResponse> {
+  static async getRecentActivities(userId: string): Promise<ActivitiesListResponse> {
     console.log('⏰ Buscando atividades recentes:', userId);
     
     // Handle demo user
@@ -198,6 +288,114 @@ export class ActivityService {
       return { 
         success: false, 
         error: 'Erro interno do sistema.' 
+      };
+    }
+  }
+
+  /**
+   * Atualizar uma atividade
+   */
+  static async updateActivity(
+    userId: string,
+    activityId: string,
+    updateData: Partial<CreateActivityData>
+  ): Promise<ActivityServiceResponse> {
+    console.log('📝 Atualizando atividade:', { userId, activityId, updateData });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating activity update');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
+    
+    try {
+      const updatePayload: Partial<ActivityInsert> = {};
+      
+      if (updateData.name !== undefined) updatePayload.name = updateData.name.trim();
+      if (updateData.description !== undefined) updatePayload.description = updateData.description?.trim() || null;
+      if (updateData.startDate !== undefined) updatePayload.start_date = updateData.startDate;
+      if (updateData.endDate !== undefined) updatePayload.end_date = updateData.endDate || null;
+      if (updateData.status !== undefined) updatePayload.status = updateData.status;
+
+      const { data, error } = await supabase
+        .from('activities')
+        .update(updatePayload)
+        .eq('id', activityId)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao atualizar atividade:', error);
+        return { 
+          success: false, 
+          error: 'Erro ao atualizar atividade. Tente novamente.' 
+        };
+      }
+
+      if (!data) {
+        return { 
+          success: false, 
+          error: 'Atividade não encontrada ou você não tem permissão para editá-la.' 
+        };
+      }
+
+      console.log('✅ Atividade atualizada com sucesso:', data);
+      return { success: true, data };
+
+    } catch (error) {
+      console.error('💥 Erro inesperado ao atualizar atividade:', error);
+      return { 
+        success: false, 
+        error: 'Erro interno do sistema. Tente novamente.' 
+      };
+    }
+  }
+
+  /**
+   * Deletar uma atividade
+   */
+  static async deleteActivity(
+    userId: string, 
+    activityId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    console.log('🗑️ Deletando atividade:', { userId, activityId });
+    
+    // Handle demo user
+    if (userId === 'unlimited-user-id') {
+      console.log('🎭 Demo user detected - simulating activity deletion');
+      return { 
+        success: false, 
+        error: 'Funcionalidade não disponível no modo demonstração.' 
+      };
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('activities')
+        .delete()
+        .eq('id', activityId)
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('❌ Erro ao deletar atividade:', error);
+        return { 
+          success: false, 
+          error: 'Erro ao deletar atividade. Tente novamente.' 
+        };
+      }
+
+      console.log('✅ Atividade deletada com sucesso');
+      return { success: true };
+
+    } catch (error) {
+      console.error('💥 Erro inesperado ao deletar atividade:', error);
+      return { 
+        success: false, 
+        error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
   }
