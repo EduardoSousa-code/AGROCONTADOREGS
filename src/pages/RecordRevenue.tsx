@@ -183,7 +183,7 @@ export default function RecordRevenue() {
       <div className="flex flex-1">
         <Sidebar />
         
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
           <div className="max-w-4xl mx-auto">
             {/* Botão Voltar */}
             <button
@@ -195,14 +195,14 @@ export default function RecordRevenue() {
             </button>
 
             {/* Cabeçalho da Página */}
-            <div className="bg-white rounded-xl shadow-lg p-8 border border-green-100 mb-8">
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="bg-green-600 p-4 rounded-full">
-                  <TrendingUp className="h-8 w-8 text-white" />
+            <div className="bg-white rounded-xl shadow-lg p-4 lg:p-8 border border-green-100 mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                <div className="bg-green-600 p-3 lg:p-4 rounded-full">
+                  <TrendingUp className="h-6 w-6 lg:h-8 lg:w-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-green-800">Lançar Receita</h1>
-                  <p className="text-green-600">Registre as entradas de faturamento da sua propriedade</p>
+                  <h1 className="text-2xl lg:text-3xl font-bold text-green-800">Lançar Receita</h1>
+                  <p className="text-green-600 text-sm lg:text-base">Registre as entradas de faturamento da sua propriedade</p>
                 </div>
               </div>
 
@@ -338,19 +338,19 @@ export default function RecordRevenue() {
                 </div>
 
                 {/* Botões */}
-                <div className="flex items-center justify-end space-x-4 pt-6 border-t border-green-100">
+                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-end space-y-4 sm:space-y-0 sm:space-x-4 pt-6 border-t border-green-100">
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
                     disabled={loading}
-                    className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex items-center px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed font-medium"
+                    className="w-full sm:w-auto flex items-center justify-center px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400 disabled:cursor-not-allowed font-medium"
                   >
                     {loading ? (
                       <>
@@ -369,9 +369,9 @@ export default function RecordRevenue() {
             </div>
 
             {/* Dicas */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-800 mb-3">💡 Dicas para Lançamento de Receitas</h3>
-              <ul className="space-y-2 text-sm text-blue-700">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 lg:p-6">
+              <h3 className="text-lg lg:text-xl font-semibold text-blue-800 mb-3">💡 Dicas para Lançamento de Receitas</h3>
+              <ul className="space-y-2 text-sm lg:text-base text-blue-700">
                 <li>• <strong>Seja específico:</strong> Detalhe a origem da receita para melhor controle</li>
                 <li>• <strong>Data correta:</strong> Use sempre a data real da transação</li>
                 <li>• <strong>Categoria adequada:</strong> Escolha a categoria que melhor representa a receita</li>
