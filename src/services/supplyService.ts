@@ -66,7 +66,7 @@ export class SupplyService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(insertQuery, 30000);
+      const { data, error } = await withTimeout(insertQuery);
 
       if (error) {
         console.error('❌ Erro ao criar insumo:', error);
@@ -137,7 +137,7 @@ export class SupplyService {
         .eq('user_id', userId)
         .order('name', { ascending: true });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar insumos:', error);
@@ -215,7 +215,7 @@ export class SupplyService {
         .filter('current_stock', 'lte', 'min_stock_level')
         .order('current_stock', { ascending: true });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar insumos com estoque baixo:', error);
@@ -269,7 +269,7 @@ export class SupplyService {
         .lte('expiry_date', futureDate.toISOString().split('T')[0])
         .order('expiry_date', { ascending: true });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar insumos próximos do vencimento:', error);
@@ -323,7 +323,7 @@ export class SupplyService {
         .eq('id', supplyId)
         .eq('user_id', userId);
 
-      const { error } = await withTimeout(deleteQuery, 30000);
+      const { error } = await withTimeout(deleteQuery);
 
       if (error) {
         console.error('❌ Erro ao deletar insumo:', error);
@@ -391,7 +391,7 @@ export class SupplyService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(updateQuery, 30000);
+      const { data, error } = await withTimeout(updateQuery);
 
       if (error) {
         console.error('❌ Erro ao atualizar insumo:', error);

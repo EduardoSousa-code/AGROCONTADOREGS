@@ -61,7 +61,7 @@ export class RevenueService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(insertQuery, 30000);
+      const { data, error } = await withTimeout(insertQuery);
 
       console.log('🔍 DEBUG - Resposta do Supabase:', { data, error });
 
@@ -155,7 +155,7 @@ export class RevenueService {
         query = query.range(offset, offset + (limit || 10) - 1);
       }
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar receitas:', error);
@@ -210,7 +210,7 @@ export class RevenueService {
         .lte('date', endDate)
         .order('date', { ascending: false });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar receitas por período:', error);
@@ -293,7 +293,7 @@ export class RevenueService {
         .eq('id', revenueId)
         .eq('user_id', userId);
 
-      const { error } = await withTimeout(deleteQuery, 30000);
+      const { error } = await withTimeout(deleteQuery);
 
       if (error) {
         console.error('❌ Erro ao deletar receita:', error);

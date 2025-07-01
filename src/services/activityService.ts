@@ -63,7 +63,7 @@ export class ActivityService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(insertQuery, 30000);
+      const { data, error } = await withTimeout(insertQuery);
 
       if (error) {
         console.error('❌ Erro ao criar atividade:', error);
@@ -142,7 +142,7 @@ export class ActivityService {
         query = query.limit(limit);
       }
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar atividades:', error);
@@ -248,7 +248,7 @@ export class ActivityService {
         .eq('status', status)
         .order('start_date', { ascending: false });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar atividades por status:', error);
@@ -301,7 +301,7 @@ export class ActivityService {
         .order('start_date', { ascending: false })
         .limit(10);
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar atividades recentes:', error);
@@ -366,7 +366,7 @@ export class ActivityService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(updateQuery, 30000);
+      const { data, error } = await withTimeout(updateQuery);
 
       if (error) {
         console.error('❌ Erro ao atualizar atividade:', error);
@@ -428,7 +428,7 @@ export class ActivityService {
         .eq('id', activityId)
         .eq('user_id', userId);
 
-      const { error } = await withTimeout(deleteQuery, 30000);
+      const { error } = await withTimeout(deleteQuery);
 
       if (error) {
         console.error('❌ Erro ao deletar atividade:', error);

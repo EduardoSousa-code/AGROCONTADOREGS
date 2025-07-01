@@ -56,7 +56,7 @@ export class ExpenseService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(insertQuery, 30000);
+      const { data, error } = await withTimeout(insertQuery);
 
       if (error) {
         console.error('❌ Erro ao criar despesa:', error);
@@ -140,7 +140,7 @@ export class ExpenseService {
         query = query.range(offset, offset + (limit || 10) - 1);
       }
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas:', error);
@@ -195,7 +195,7 @@ export class ExpenseService {
         .lte('date', endDate)
         .order('date', { ascending: false });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas por período:', error);
@@ -276,7 +276,7 @@ export class ExpenseService {
         .eq('category', category)
         .order('date', { ascending: false });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas por categoria:', error);
@@ -329,7 +329,7 @@ export class ExpenseService {
         .eq('activity_id', activityId)
         .order('date', { ascending: false });
 
-      const { data, error } = await withTimeout(query, 30000);
+      const { data, error } = await withTimeout(query);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas por atividade:', error);
@@ -384,7 +384,7 @@ export class ExpenseService {
         .eq('id', expenseId)
         .eq('user_id', userId);
 
-      const { error } = await withTimeout(deleteQuery, 30000);
+      const { error } = await withTimeout(deleteQuery);
 
       if (error) {
         console.error('❌ Erro ao deletar despesa:', error);
@@ -450,7 +450,7 @@ export class ExpenseService {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(updateQuery, 30000);
+      const { data, error } = await withTimeout(updateQuery);
 
       if (error) {
         console.error('❌ Erro ao atualizar despesa:', error);
