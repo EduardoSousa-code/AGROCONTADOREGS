@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import RecordRevenue from './pages/RecordRevenue';
 import RecordExpense from './pages/RecordExpense';
+import AddSupply from './pages/AddSupply';
 import Reports from './pages/Reports';
 
 function App() {
@@ -55,6 +56,14 @@ function App() {
             element={
               <PrivateRoute>
                 <RecordExpense />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/add-supply" 
+            element={
+              <PrivateRoute>
+                <AddSupply />
               </PrivateRoute>
             } 
           />
