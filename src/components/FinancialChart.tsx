@@ -17,17 +17,17 @@ interface FinancialChartProps {
 
 export default function FinancialChart({ data }: FinancialChartProps) {
   const total = data.revenue + data.expenses;
-  const revenuePercentage = (data.revenue / total) * 100;
-  const expensesPercentage = (data.expenses / total) * 100;
+  const revenuePercentage = total > 0 ? (data.revenue / total) * 100 : 0;
+  const expensesPercentage = total > 0 ? (data.expenses / total) * 100 : 0;
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-green-100">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6 border border-green-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
         <h2 className="text-xl font-bold text-green-800 flex items-center">
           <BarChart3 className="h-6 w-6 mr-2 text-green-600" />
           Visão Financeira
         </h2>
-        <TrendingUp className="h-5 w-5 text-green-600" />
+        <TrendingUp className="h-5 w-5 text-green-600 self-start sm:self-auto" />
       </div>
 
       {/* Gráfico de Barras Simples */}
@@ -66,20 +66,28 @@ export default function FinancialChart({ data }: FinancialChartProps) {
       {/* Distribuição por Categoria */}
       <div>
         <h3 className="text-sm font-medium text-gray-700 mb-3">Distribuição dos Gastos</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {data.categories.map((category, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <div 
-                className="w-4 h-4 rounded-full"
-                style={{ backgroundColor: category.color }}
-              ></div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-700 truncate">{category.name}</p>
-                <p className="text-xs text-gray-500">R$ {category.value.toLocaleString()}</p>
+        {data.categories.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {data.categories.map((category, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <div 
+                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: category.color }}
+                ></div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-700 truncate">{category.name}</p>
+                  <p className="text-xs text-gray-500">R$ {category.value.toLocaleString()}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-4">
+            <p className="text-sm text-gray-500">
+              Nenhuma despesa registrada este mês
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

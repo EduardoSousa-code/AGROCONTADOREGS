@@ -40,6 +40,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Estados para dados
   const [revenues, setRevenues] = useState<Revenue[]>([]);
@@ -216,13 +217,27 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex flex-col">
-      <Header />
+      <Header 
+        onMenuClick={() => setSidebarOpen(true)}
+        sidebarOpen={sidebarOpen}
+      />
       
-      <div className="flex flex-1">
-        <Sidebar />
+      <div className="flex flex-1 relative">
+        <Sidebar 
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
         
-        <main className="flex-1 p-8 overflow-y-auto">
-          <div className="max-w-6xl mx-auto space-y-8">
+        {/* Backdrop overlay for mobile */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        
+        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
+          <div className="max-w-6xl mx-auto space-y-6 lg:space-y-8">
             {/* Mensagem de Erro */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
@@ -252,7 +267,7 @@ export default function Dashboard() {
                 <InventoryStock data={stockData} />
                 
                 {/* Grid para Cards 3, 4 e 5 */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                   {/* Card 3 - Atividades Recentes */}
                   <RecentActivities activities={recentActivities} />
                   
@@ -268,7 +283,7 @@ export default function Dashboard() {
 
                 {/* Mensagem quando não há dados */}
                 {revenues.length === 0 && expenses.length === 0 && supplies.length === 0 && activities.length === 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 lg:p-8 text-center">
                     <h3 className="text-lg font-semibold text-blue-800 mb-2">Bem-vindo ao AgroContador!</h3>
                     <p className="text-blue-600 mb-4">
                       Comece registrando suas receitas, despesas, insumos e atividades para ver seus dados aqui.
