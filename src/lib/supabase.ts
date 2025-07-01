@@ -45,6 +45,7 @@ export interface Database {
           user_id: string;
           value: number;
           description: string;
+          category: string;
           date: string;
           created_at: string;
           updated_at: string;
@@ -55,6 +56,7 @@ export interface Database {
           user_id: string;
           value: number;
           description: string;
+          category: string;
           date: string;
           created_at?: string;
           updated_at?: string;
@@ -65,6 +67,7 @@ export interface Database {
           user_id?: string;
           value?: number;
           description?: string;
+          category?: string;
           date?: string;
           created_at?: string;
           updated_at?: string;
@@ -106,6 +109,82 @@ export interface Database {
           updated_at?: string;
         };
       };
+      supplies: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          unit: string;
+          current_stock: number;
+          min_stock_level: number;
+          max_stock_level: number;
+          expiry_date: string | null;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          unit: string;
+          current_stock?: number;
+          min_stock_level?: number;
+          max_stock_level?: number;
+          expiry_date?: string | null;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          unit?: string;
+          current_stock?: number;
+          min_stock_level?: number;
+          max_stock_level?: number;
+          expiry_date?: string | null;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      activities: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          start_date: string;
+          end_date: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          description?: string | null;
+          start_date: string;
+          end_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          description?: string | null;
+          start_date?: string;
+          end_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
@@ -119,3 +198,11 @@ export type RevenueUpdate = Database['public']['Tables']['revenues']['Update'];
 export type Expense = Database['public']['Tables']['expenses']['Row'];
 export type ExpenseInsert = Database['public']['Tables']['expenses']['Insert'];
 export type ExpenseUpdate = Database['public']['Tables']['expenses']['Update'];
+
+export type Supply = Database['public']['Tables']['supplies']['Row'];
+export type SupplyInsert = Database['public']['Tables']['supplies']['Insert'];
+export type SupplyUpdate = Database['public']['Tables']['supplies']['Update'];
+
+export type Activity = Database['public']['Tables']['activities']['Row'];
+export type ActivityInsert = Database['public']['Tables']['activities']['Insert'];
+export type ActivityUpdate = Database['public']['Tables']['activities']['Update'];

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, MessageSquare, Eye, ExternalLink } from 'lucide-react';
+import { Bot, MessageSquare, Eye, ExternalLink, AlertCircle } from 'lucide-react';
 
 interface Alert {
   id: string;
@@ -10,9 +10,10 @@ interface Alert {
 
 interface AIAlertsProps {
   alerts: Alert[];
+  noAlertsMessage?: string;
 }
 
-export default function AIAlerts({ alerts }: AIAlertsProps) {
+export default function AIAlerts({ alerts, noAlertsMessage }: AIAlertsProps) {
   const getAlertColor = (type: string) => {
     switch (type) {
       case 'critical': return 'bg-red-50 border-red-200 text-red-800';
@@ -41,17 +42,27 @@ export default function AIAlerts({ alerts }: AIAlertsProps) {
       </div>
 
       <div className="space-y-4">
-        {alerts.map((alert) => (
-          <div key={alert.id} className={`p-4 rounded-lg border ${getAlertColor(alert.type)}`}>
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="font-medium text-sm mb-1">{alert.message}</p>
-                <p className="text-xs opacity-75">{alert.timestamp}</p>
+        {alerts.length > 0 ? (
+          alerts.map((alert) => (
+            <div key={alert.id} className={`p-4 rounded-lg border ${getAlertColor(alert.type)}`}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="font-medium text-sm mb-1">{alert.message}</p>
+                  <p className="text-xs opacity-75">{alert.timestamp}</p>
+                </div>
+                <ExternalLink className="h-4 w-4 ml-2 opacity-60" />
               </div>
-              <ExternalLink className="h-4 w-4 ml-2 opacity-60" />
             </div>
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+            <h3 className="text-lg font-medium text-gray-600 mb-2">Nenhum alerta no momento</h3>
+            <p className="text-sm text-gray-500">
+              {noAlertsMessage || 'Os alertas inteligentes aparecerão aqui quando houver informações importantes sobre sua propriedade.'}
+            </p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
