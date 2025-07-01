@@ -9,8 +9,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Função utilitária para adicionar timeout a promessas com timeout de 60 segundos
-export const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number = 60000): Promise<T> => {
+// Função utilitária para adicionar timeout a promessas com timeout de 120 segundos (2 minutos)
+export const withTimeout = <T,>(promise: Promise<T>, timeoutMs: number = 120000): Promise<T> => {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new Error(`Operação expirou após ${timeoutMs}ms`));
