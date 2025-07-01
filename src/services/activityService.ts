@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 import type { ActivityInsert, Activity } from '../lib/supabase';
 
 export interface CreateActivityData {
@@ -57,11 +57,13 @@ export class ActivityService {
         status: activityData.status
       };
 
-      const { data, error } = await supabase
+      const insertQuery = supabase
         .from('activities')
         .insert(insertData)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(insertQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao criar atividade:', error);
@@ -98,12 +100,20 @@ export class ActivityService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao criar atividade:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar atividades do usuário
@@ -132,7 +142,7 @@ export class ActivityService {
         query = query.limit(limit);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar atividades:', error);
@@ -147,12 +157,20 @@ export class ActivityService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar atividades:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Converter atividades para formato do componente RecentActivities
@@ -223,12 +241,14 @@ export class ActivityService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('activities')
         .select('*')
         .eq('user_id', userId)
         .eq('status', status)
         .order('start_date', { ascending: false });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar atividades por status:', error);
@@ -242,12 +262,20 @@ export class ActivityService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar atividades por status:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar atividades recentes (últimos 30 dias)
@@ -265,13 +293,15 @@ export class ActivityService {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       
-      const { data, error } = await supabase
+      const query = supabase
         .from('activities')
         .select('*')
         .eq('user_id', userId)
         .gte('start_date', thirtyDaysAgo.toISOString().split('T')[0])
         .order('start_date', { ascending: false })
         .limit(10);
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar atividades recentes:', error);
@@ -285,12 +315,20 @@ export class ActivityService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar atividades recentes:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema.' 
       };
     }
-  }
+  };
 
   /**
    * Atualizar uma atividade
@@ -320,13 +358,15 @@ export class ActivityService {
       if (updateData.endDate !== undefined) updatePayload.end_date = updateData.endDate || null;
       if (updateData.status !== undefined) updatePayload.status = updateData.status;
 
-      const { data, error } = await supabase
+      const updateQuery = supabase
         .from('activities')
         .update(updatePayload)
         .eq('id', activityId)
         .eq('user_id', userId)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(updateQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao atualizar atividade:', error);
@@ -348,12 +388,20 @@ export class ActivityService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao atualizar atividade:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Deletar uma atividade
@@ -374,11 +422,13 @@ export class ActivityService {
     }
     
     try {
-      const { error } = await supabase
+      const deleteQuery = supabase
         .from('activities')
         .delete()
         .eq('id', activityId)
         .eq('user_id', userId);
+
+      const { error } = await withTimeout(deleteQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao deletar atividade:', error);
@@ -393,10 +443,18 @@ export class ActivityService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao deletar atividade:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 }

@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 import type { SupplyInsert, Supply } from '../lib/supabase';
 
 export interface CreateSupplyData {
@@ -60,11 +60,13 @@ export class SupplyService {
         description: supplyData.description?.trim() || null
       };
 
-      const { data, error } = await supabase
+      const insertQuery = supabase
         .from('supplies')
         .insert(insertData)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(insertQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao criar insumo:', error);
@@ -101,12 +103,20 @@ export class SupplyService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao criar insumo:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar insumos do usuário
@@ -121,11 +131,13 @@ export class SupplyService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('supplies')
         .select('*')
         .eq('user_id', userId)
         .order('name', { ascending: true });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar insumos:', error);
@@ -140,12 +152,20 @@ export class SupplyService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar insumos:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Calcular resumo do estoque
@@ -173,7 +193,7 @@ export class SupplyService {
       lowStock,
       nearExpiry
     };
-  }
+  };
 
   /**
    * Buscar insumos com estoque baixo
@@ -188,12 +208,14 @@ export class SupplyService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('supplies')
         .select('*')
         .eq('user_id', userId)
         .filter('current_stock', 'lte', 'min_stock_level')
         .order('current_stock', { ascending: true });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar insumos com estoque baixo:', error);
@@ -207,12 +229,20 @@ export class SupplyService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar insumos com estoque baixo:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar insumos próximos do vencimento
@@ -230,7 +260,7 @@ export class SupplyService {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + days);
       
-      const { data, error } = await supabase
+      const query = supabase
         .from('supplies')
         .select('*')
         .eq('user_id', userId)
@@ -238,6 +268,8 @@ export class SupplyService {
         .gte('expiry_date', new Date().toISOString().split('T')[0])
         .lte('expiry_date', futureDate.toISOString().split('T')[0])
         .order('expiry_date', { ascending: true });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar insumos próximos do vencimento:', error);
@@ -251,12 +283,20 @@ export class SupplyService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar insumos próximos do vencimento:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema.' 
       };
     }
-  }
+  };
 
   /**
    * Deletar um insumo
@@ -277,11 +317,13 @@ export class SupplyService {
     }
     
     try {
-      const { error } = await supabase
+      const deleteQuery = supabase
         .from('supplies')
         .delete()
         .eq('id', supplyId)
         .eq('user_id', userId);
+
+      const { error } = await withTimeout(deleteQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao deletar insumo:', error);
@@ -296,12 +338,20 @@ export class SupplyService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao deletar insumo:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Atualizar um insumo
@@ -333,13 +383,15 @@ export class SupplyService {
       if (updateData.expiryDate !== undefined) updatePayload.expiry_date = updateData.expiryDate;
       if (updateData.description !== undefined) updatePayload.description = updateData.description?.trim() || null;
 
-      const { data, error } = await supabase
+      const updateQuery = supabase
         .from('supplies')
         .update(updatePayload)
         .eq('id', supplyId)
         .eq('user_id', userId)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(updateQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao atualizar insumo:', error);
@@ -361,10 +413,18 @@ export class SupplyService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao atualizar insumo:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 }

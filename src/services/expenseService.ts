@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 import type { ExpenseInsert, Expense } from '../lib/supabase';
 
 export interface CreateExpenseData {
@@ -50,11 +50,13 @@ export class ExpenseService {
         date: expenseData.date
       };
 
-      const { data, error } = await supabase
+      const insertQuery = supabase
         .from('expenses')
         .insert(insertData)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(insertQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao criar despesa:', error);
@@ -91,12 +93,20 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao criar despesa:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar despesas do usuário
@@ -130,7 +140,7 @@ export class ExpenseService {
         query = query.range(offset, offset + (limit || 10) - 1);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas:', error);
@@ -145,12 +155,20 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar despesas:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar despesas por período
@@ -169,13 +187,15 @@ export class ExpenseService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('expenses')
         .select('*')
         .eq('user_id', userId)
         .gte('date', startDate)
         .lte('date', endDate)
         .order('date', { ascending: false });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas por período:', error);
@@ -190,12 +210,20 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar despesas por período:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Calcular total de despesas por período
@@ -223,7 +251,7 @@ export class ExpenseService {
         error: 'Erro ao calcular total de despesas.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar despesas por categoria
@@ -241,12 +269,14 @@ export class ExpenseService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('expenses')
         .select('*')
         .eq('user_id', userId)
         .eq('category', category)
         .order('date', { ascending: false });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas por categoria:', error);
@@ -261,12 +291,20 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar despesas por categoria:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar despesas por atividade
@@ -284,12 +322,14 @@ export class ExpenseService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('expenses')
         .select('*')
         .eq('user_id', userId)
         .eq('activity_id', activityId)
         .order('date', { ascending: false });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar despesas por atividade:', error);
@@ -304,12 +344,20 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar despesas por atividade:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Deletar uma despesa
@@ -330,11 +378,13 @@ export class ExpenseService {
     }
     
     try {
-      const { error } = await supabase
+      const deleteQuery = supabase
         .from('expenses')
         .delete()
         .eq('id', expenseId)
         .eq('user_id', userId);
+
+      const { error } = await withTimeout(deleteQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao deletar despesa:', error);
@@ -349,12 +399,20 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao deletar despesa:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Atualizar uma despesa
@@ -384,13 +442,15 @@ export class ExpenseService {
       if (updateData.activityId !== undefined) updatePayload.activity_id = updateData.activityId;
       if (updateData.date !== undefined) updatePayload.date = updateData.date;
 
-      const { data, error } = await supabase
+      const updateQuery = supabase
         .from('expenses')
         .update(updatePayload)
         .eq('id', expenseId)
         .eq('user_id', userId)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(updateQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao atualizar despesa:', error);
@@ -412,10 +472,18 @@ export class ExpenseService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao atualizar despesa:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 }

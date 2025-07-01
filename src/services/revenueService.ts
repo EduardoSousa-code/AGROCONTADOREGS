@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, withTimeout } from '../lib/supabase';
 import type { RevenueInsert, Revenue } from '../lib/supabase';
 
 export interface CreateRevenueData {
@@ -55,11 +55,13 @@ export class RevenueService {
 
       console.log('🔍 DEBUG - Dados que serão inseridos no Supabase:', insertData);
 
-      const { data, error } = await supabase
+      const insertQuery = supabase
         .from('revenues')
         .insert(insertData)
         .select()
         .single();
+
+      const { data, error } = await withTimeout(insertQuery, 30000);
 
       console.log('🔍 DEBUG - Resposta do Supabase:', { data, error });
 
@@ -106,12 +108,20 @@ export class RevenueService {
     } catch (error) {
       console.error('💥 Erro inesperado ao criar receita:', error);
       console.error('🔍 DEBUG - Stack trace do erro:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar receitas do usuário
@@ -145,7 +155,7 @@ export class RevenueService {
         query = query.range(offset, offset + (limit || 10) - 1);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar receitas:', error);
@@ -160,12 +170,20 @@ export class RevenueService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar receitas:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Buscar receitas por período
@@ -184,13 +202,15 @@ export class RevenueService {
     }
     
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('revenues')
         .select('*')
         .eq('user_id', userId)
         .gte('date', startDate)
         .lte('date', endDate)
         .order('date', { ascending: false });
+
+      const { data, error } = await withTimeout(query, 30000);
 
       if (error) {
         console.error('❌ Erro ao buscar receitas por período:', error);
@@ -205,12 +225,20 @@ export class RevenueService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao buscar receitas por período:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 
   /**
    * Calcular total de receitas por período
@@ -238,7 +266,7 @@ export class RevenueService {
         error: 'Erro ao calcular total de receitas.' 
       };
     }
-  }
+  };
 
   /**
    * Deletar uma receita
@@ -259,11 +287,13 @@ export class RevenueService {
     }
     
     try {
-      const { error } = await supabase
+      const deleteQuery = supabase
         .from('revenues')
         .delete()
         .eq('id', revenueId)
         .eq('user_id', userId);
+
+      const { error } = await withTimeout(deleteQuery, 30000);
 
       if (error) {
         console.error('❌ Erro ao deletar receita:', error);
@@ -278,10 +308,18 @@ export class RevenueService {
 
     } catch (error) {
       console.error('💥 Erro inesperado ao deletar receita:', error);
+      
+      if (error instanceof Error && error.message.includes('expirou')) {
+        return { 
+          success: false, 
+          error: 'Operação demorou muito para responder. Verifique sua conexão e tente novamente.' 
+        };
+      }
+      
       return { 
         success: false, 
         error: 'Erro interno do sistema. Tente novamente.' 
       };
     }
-  }
+  };
 }
