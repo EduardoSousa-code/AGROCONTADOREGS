@@ -126,14 +126,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         raw_user_meta_data: supabaseUser.raw_user_meta_data
       });
 
-      // Aplicar timeout de 30 segundos na consulta do perfil
+      // Aplicar timeout de 60 segundos na consulta do perfil
       const profileQuery = supabase
         .from('profiles')
         .select('*')
         .eq('id', supabaseUser.id)
         .maybeSingle();
 
-      const { data: profile, error } = await withTimeout(profileQuery, 30000);
+      const { data: profile, error } = await withTimeout(profileQuery, 60000);
 
       console.log('📊 Resposta da consulta Supabase:', {
         profile: profile,
@@ -187,7 +187,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .select()
             .single();
 
-          const { data: newProfile, error: createError } = await withTimeout(createProfileQuery, 30000);
+          const { data: newProfile, error: createError } = await withTimeout(createProfileQuery, 60000);
 
           if (createError) {
             console.error('❌ Erro ao criar perfil automaticamente:', {
@@ -290,7 +290,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         .select()
         .single();
 
-      const { data, error } = await withTimeout(updateQuery, 30000);
+      const { data, error } = await withTimeout(updateQuery, 60000);
 
       if (error) {
         console.error('❌ Erro ao atualizar perfil:', error);
@@ -376,7 +376,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password: cleanPassword
       });
 
-      const { data, error } = await withTimeout(authQuery, 30000); // 30 segundos para autenticação
+      const { data, error } = await withTimeout(authQuery, 60000); // 60 segundos para autenticação
 
       console.log('📡 Resposta da autenticação Supabase:', {
         user: data.user ? { id: data.user.id, email: data.user.email } : null,
@@ -517,7 +517,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       });
 
-      const { data, error } = await withTimeout(signUpQuery, 30000); // 30 segundos para registro
+      const { data, error } = await withTimeout(signUpQuery, 60000); // 60 segundos para registro
 
       if (error) {
         // Only log unexpected errors to console, not expected ones like "User already registered"
@@ -632,7 +632,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         redirectTo: `${window.location.origin}/reset-password`
       });
 
-      const { error } = await withTimeout(resetQuery, 30000); // 30 segundos para reset
+      const { error } = await withTimeout(resetQuery, 60000); // 60 segundos para reset
 
       if (error) {
         console.error('❌ Erro ao enviar email de recuperação:', error);
@@ -682,7 +682,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         console.log('🔍 Verificando sessão ativa no Supabase...');
         
         const sessionQuery = supabase.auth.getSession();
-        const { data: { session } } = await withTimeout(sessionQuery, 30000);
+        const { data: { session } } = await withTimeout(sessionQuery, 60000);
         
         console.log('📊 Resultado da verificação de sessão:', {
           hasSession: !!session,
