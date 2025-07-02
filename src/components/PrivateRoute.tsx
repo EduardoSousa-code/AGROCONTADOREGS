@@ -9,7 +9,8 @@ interface PrivateRouteProps {
 export default function PrivateRoute({ children }: PrivateRouteProps) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-
+console.log("redirecionamento")
+  console.log(isAuthenticated)
   // Se não estiver autenticado, redirecionar para login
   if (!isAuthenticated) {
     // Salvar a localização atual para redirecionar após o login
