@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   TrendingDown, 
@@ -15,28 +15,32 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../contexts/AuthContext';
 import { ExpenseService } from '../services/expenseService';
+import { ActivityService } from '../services/activityService';
+import type { Activity as ActivityType } from '../lib/supabase';
 
 interface ExpenseFormData {
   value: string;
   description: string;
   date: string;
   category: string;
-  activity: string; // Placeholder field for future activity integration
+  activityId: string;
 }
 
 export default function RecordExpense() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [loadingActivities, setLoadingActivities] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [activities, setActivities] = useState<ActivityType[]>([]);
   
   const [formData, setFormData] = useState<ExpenseFormData>({
     value: '',
     description: '',
     date: new Date().toISOString().split('T')[0], // Data atual
     category: '',
-    activity: ''
+    activityId: ''
   });
 
   // Categorias de despesa comuns para fazendas
@@ -57,6 +61,33 @@ export default function RecordExpense() {
     'Aluguel de Terra',
     'Outros'
   ];
+
+  // Buscar atividades do usuário
+  const fetchActivities = async () => {
+    if (!user) return;
+
+    setLoadingActivities(true);
+    try {
+      const result = await ActivityService.getUserActivities(user.id);
+      
+      if (result.success && result.data) {
+        setActivities(result.data);
+        console.log('✅ Atividades carregadas:', result.data.length);
+      } else {
+        console.error('Erro ao carregar atividades:', result.error);
+        // Não mostrar erro para o usuário, apenas log
+      }
+    } catch (error) {
+      console.error('💥 Erro inesperado ao carregar atividades:', error);
+    } finally {
+      setLoadingActivities(false);
+    }
+  };
+
+  // Carregar atividades quando o componente montar
+  useEffect(() => {
+    fetchActivities();
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -135,8 +166,7 @@ export default function RecordExpense() {
         description: formData.description.trim(),
         category: formData.category,
         date: formData.date,
-        // Note: activity field is not saved yet as it will be implemented later
-        activityId: null
+        activityId: formData.activityId || null
       });
       
       if (result.success) {
@@ -148,7 +178,7 @@ export default function RecordExpense() {
           description: '',
           date: new Date().toISOString().split('T')[0],
           category: '',
-          activity: ''
+          activityId: ''
         });
         
         // Remover mensagem de sucesso após 3 segundos
@@ -316,27 +346,44 @@ export default function RecordExpense() {
                   )}
                 </div>
 
-                {/* Atividade (Placeholder) */}
+                {/* Atividade */}
                 <div className="space-y-2">
-                  <label htmlFor="activity" className="block text-sm font-medium text-red-700">
+                  <label htmlFor="activityId" className="block text-sm font-medium text-red-700">
                     Atividade
-                    <span className="text-xs text-gray-500 ml-2">(Será implementado na tela "Nova Atividade")</span>
+                    <span className="text-xs text-gray-500 ml-2">(Opcional)</span>
                   </label>
                   <div className="relative">
                     <Activity className="absolute left-3 top-3 h-5 w-5 text-red-500" />
-                    <input
-                      type="text"
-                      id="activity"
-                      name="activity"
-                      value={formData.activity}
+                    <select
+                      id="activityId"
+                      name="activityId"
+                      value={formData.activityId}
                       onChange={handleInputChange}
-                      disabled={true} // Desabilitado por enquanto
-                      className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
-                      placeholder="Ex: Plantio de Milho (em desenvolvimento)"
-                    />
+                      disabled={loading || loadingActivities}
+                      className={`w-full pl-10 pr-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-50 disabled:cursor-not-allowed ${
+                        errors.activityId ? 'border-red-300' : 'border-red-200'
+                      }`}
+                    >
+                      <option value="">Selecione uma atividade (opcional)</option>
+                      {activities.map((activity) => (
+                        <option key={activity.id} value={activity.id}>
+                          {activity.name} - {activity.status === 'planejada' ? 'Planejada' : 
+                           activity.status === 'em_andamento' ? 'Em Andamento' : 
+                           activity.status === 'concluida' ? 'Concluída' : 'Cancelada'}
+                        </option>
+                      ))}
+                    </select>
+                    {loadingActivities && (
+                      <div className="absolute right-3 top-3">
+                        <Loader2 className="h-5 w-5 animate-spin text-red-500" />
+                      </div>
+                    )}
                   </div>
+                  {errors.activityId && (
+                    <p className="text-sm text-red-600">{errors.activityId}</p>
+                  )}
                   <p className="text-xs text-gray-500">
-                    Este campo será vinculado às atividades cadastradas na funcionalidade "Nova Atividade"
+                    Vincule esta despesa a uma atividade específica para melhor controle
                   </p>
                 </div>
 
@@ -411,9 +458,9 @@ export default function RecordExpense() {
                 <li>• <strong>Seja detalhado:</strong> Descreva claramente o que foi comprado ou pago</li>
                 <li>• <strong>Data correta:</strong> Use sempre a data real da transação</li>
                 <li>• <strong>Categoria adequada:</strong> Escolha a categoria que melhor representa a despesa</li>
+                <li>• <strong>Vincule à atividade:</strong> Conecte despesas às atividades correspondentes para análises detalhadas</li>
                 <li>• <strong>Guarde comprovantes:</strong> Mantenha sempre as notas fiscais e recibos</li>
                 <li>• <strong>Valores precisos:</strong> Use vírgula ou ponto para separar decimais (ex: 150,75)</li>
-                <li>• <strong>Atividades:</strong> Em breve você poderá vincular despesas a atividades específicas</li>
               </ul>
             </div>
           </div>
