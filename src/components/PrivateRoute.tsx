@@ -9,10 +9,11 @@ interface PrivateRouteProps {
 export default function PrivateRoute({ children }: PrivateRouteProps) {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
+  const hasUser = localStorage.getItem("agrocontador_user");
 console.log("redirecionamento")
-  console.log(isAuthenticated)
+  console.log(hasUser)
   // Se não estiver autenticado, redirecionar para login
-  if (!isAuthenticated) {
+  if (!hasUser) {
     // Salvar a localização atual para redirecionar após o login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
