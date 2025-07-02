@@ -142,7 +142,7 @@ export class RevenueService {
     try {
       let query = supabase
         .from('revenues')
-        .select('*')
+        .select('*, activities(name)')
         .eq('user_id', userId)
         .order('date', { ascending: false })
         .order('created_at', { ascending: false });
@@ -204,7 +204,7 @@ export class RevenueService {
     try {
       const query = supabase
         .from('revenues')
-        .select('*')
+        .select('*, activities(name)')
         .eq('user_id', userId)
         .gte('date', startDate)
         .lte('date', endDate)

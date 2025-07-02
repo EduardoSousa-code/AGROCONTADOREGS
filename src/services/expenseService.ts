@@ -127,7 +127,7 @@ export class ExpenseService {
     try {
       let query = supabase
         .from('expenses')
-        .select('*')
+        .select('*, activities(name)')
         .eq('user_id', userId)
         .order('date', { ascending: false })
         .order('created_at', { ascending: false });
@@ -189,7 +189,7 @@ export class ExpenseService {
     try {
       const query = supabase
         .from('expenses')
-        .select('*')
+        .select('*, activities(name)')
         .eq('user_id', userId)
         .gte('date', startDate)
         .lte('date', endDate)
@@ -271,7 +271,7 @@ export class ExpenseService {
     try {
       const query = supabase
         .from('expenses')
-        .select('*')
+        .select('*, activities(name)')
         .eq('user_id', userId)
         .eq('category', category)
         .order('date', { ascending: false });
@@ -324,7 +324,7 @@ export class ExpenseService {
     try {
       const query = supabase
         .from('expenses')
-        .select('*')
+        .select('*, activities(name)')
         .eq('user_id', userId)
         .eq('activity_id', activityId)
         .order('date', { ascending: false });

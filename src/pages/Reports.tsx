@@ -354,7 +354,7 @@ export default function Reports() {
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <p className="text-sm text-green-600 font-medium">Total de Receitas</p>
-                            <p className="text-xl lg:text-2xl font-bold text-green-800 truncate">{formatCurrency(summary.totalRevenues)}</p>
+                            <p className="text-lg font-bold text-green-800 break-words">{formatCurrency(summary.totalRevenues)}</p>
                             <p className="text-xs text-green-600">{summary.revenueCount} lançamentos</p>
                           </div>
                           <TrendingUp className="h-6 w-6 lg:h-8 lg:w-8 text-green-600 flex-shrink-0 ml-2" />
@@ -365,7 +365,7 @@ export default function Reports() {
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <p className="text-sm text-red-600 font-medium">Total de Despesas</p>
-                            <p className="text-xl lg:text-2xl font-bold text-red-800 truncate">{formatCurrency(summary.totalExpenses)}</p>
+                            <p className="text-lg font-bold text-red-800 break-words">{formatCurrency(summary.totalExpenses)}</p>
                             <p className="text-xs text-red-600">{summary.expenseCount} lançamentos</p>
                           </div>
                           <TrendingDown className="h-6 w-6 lg:h-8 lg:w-8 text-red-600 flex-shrink-0 ml-2" />
@@ -378,7 +378,7 @@ export default function Reports() {
                             <p className={`text-sm font-medium ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
                               Lucro Líquido
                             </p>
-                            <p className={`text-xl lg:text-2xl font-bold ${summary.netProfit >= 0 ? 'text-blue-800' : 'text-orange-800'} truncate`}>
+                            <p className={`text-lg font-bold ${summary.netProfit >= 0 ? 'text-blue-800' : 'text-orange-800'} break-words`}>
                               {formatCurrency(summary.netProfit)}
                             </p>
                             <p className={`text-xs ${summary.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
@@ -393,7 +393,7 @@ export default function Reports() {
                         <div className="flex items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <p className="text-sm text-gray-600 font-medium">Margem de Lucro</p>
-                            <p className="text-xl lg:text-2xl font-bold text-gray-800 truncate">
+                            <p className="text-lg font-bold text-gray-800 break-words">
                               {summary.totalRevenues > 0 ? ((summary.netProfit / summary.totalRevenues) * 100).toFixed(1) : '0.0'}%
                             </p>
                             <p className="text-xs text-gray-600">Sobre receitas</p>
@@ -473,6 +473,7 @@ export default function Reports() {
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Data</th>
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Descrição</th>
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Categoria</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-green-800 text-sm lg:text-base">Atividade</th>
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-semibold text-green-800 text-sm lg:text-base">Valor</th>
                             </tr>
                           </thead>
@@ -482,6 +483,7 @@ export default function Reports() {
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base whitespace-nowrap">{formatDate(revenue.date)}</td>
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{revenue.description}</td>
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{revenue.category}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{revenue.activities?.name || '-'}</td>
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-medium text-sm lg:text-base whitespace-nowrap">{formatCurrency(revenue.value)}</td>
                               </tr>
                             ))}
@@ -502,6 +504,7 @@ export default function Reports() {
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Data</th>
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Descrição</th>
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Categoria</th>
+                              <th className="border border-gray-300 px-2 lg:px-4 py-2 text-left font-semibold text-red-800 text-sm lg:text-base">Atividade</th>
                               <th className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-semibold text-red-800 text-sm lg:text-base">Valor</th>
                             </tr>
                           </thead>
@@ -511,6 +514,7 @@ export default function Reports() {
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base whitespace-nowrap">{formatDate(expense.date)}</td>
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{expense.description}</td>
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{expense.category}</td>
+                                <td className="border border-gray-300 px-2 lg:px-4 py-2 text-sm lg:text-base">{expense.activities?.name || '-'}</td>
                                 <td className="border border-gray-300 px-2 lg:px-4 py-2 text-right font-medium text-sm lg:text-base whitespace-nowrap">{formatCurrency(expense.value)}</td>
                               </tr>
                             ))}

@@ -69,6 +69,7 @@ export interface Database {
           updated_at: string;
           activity_id: string | null;
           category: string;
+          activities?: { name: string } | null;
         };
         Insert: {
           id?: string;
@@ -104,6 +105,7 @@ export interface Database {
           date: string;
           created_at: string;
           updated_at: string;
+          activities?: { name: string } | null;
         };
         Insert: {
           id?: string;
