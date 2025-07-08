@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Package, AlertTriangle, Calendar, Eye } from 'lucide-react';
 
 interface StockData {
@@ -12,6 +13,12 @@ interface InventoryStockProps {
 }
 
 export default function InventoryStock({ data }: InventoryStockProps) {
+  const navigate = useNavigate();
+
+  const handleViewStock = () => {
+    navigate('/add-supply');
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6 border border-green-100">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 space-y-4 sm:space-y-0">
@@ -19,7 +26,10 @@ export default function InventoryStock({ data }: InventoryStockProps) {
           <Package className="h-6 w-6 mr-2 text-green-600" />
           Estoque de Insumos
         </h2>
-        <button className="flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium self-start sm:self-auto">
+        <button 
+          onClick={handleViewStock}
+          className="flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium self-start sm:self-auto"
+        >
           <Eye className="h-4 w-4 mr-2" />
           Ver Estoque
         </button>
