@@ -16,6 +16,7 @@ import RecordExpense from './pages/RecordExpense';
 import AddSupply from './pages/AddSupply';
 import NewActivity from './pages/NewActivity';
 import Reports from './pages/Reports';
+import PublicRoute from './components/PublicRoute';
 
 function App() {
   return (
@@ -23,71 +24,28 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Rotas Públicas */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+          </Route>
+
           {/* Rotas Privadas */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/record-revenue" 
-            element={
-              <PrivateRoute>
-                <RecordRevenue />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/record-expense" 
-            element={
-              <PrivateRoute>
-                <RecordExpense />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/add-supply" 
-            element={
-              <PrivateRoute>
-                <AddSupply />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/new-activity" 
-            element={
-              <PrivateRoute>
-                <NewActivity />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/reports" 
-            element={
-              <PrivateRoute>
-                <Reports />
-              </PrivateRoute>
-            } 
-          />
-          
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/record-revenue" element={<RecordRevenue />} />
+            <Route path="/record-expense" element={<RecordExpense />} />
+            <Route path="/add-supply" element={<AddSupply />} />
+            <Route path="/new-activity" element={<NewActivity />} />
+            <Route path="/reports" element={<Reports />} />
+          </Route>
+
+
+
           {/* Rota padrão - redireciona para dashboard se autenticado, senão para login */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
+          {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
+
           {/* Rota 404 - redireciona para login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
