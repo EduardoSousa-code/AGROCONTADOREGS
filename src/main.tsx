@@ -3,8 +3,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Registrar Service Worker para PWA
-if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz')) {
+// Registrar Service Worker para PWA - verificar StackBlitz primeiro
+if (window.location.hostname.includes('stackblitz')) {
+  console.log('ℹ️ Service Worker não disponível no StackBlitz - funcionalidade PWA limitada');
+} else if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then((registration) => {
@@ -39,8 +41,6 @@ if ('serviceWorker' in navigator && !window.location.hostname.includes('stackbli
     console.log('🔄 Service Worker atualizado, recarregando página...');
     window.location.reload();
   });
-} else if (window.location.hostname.includes('stackblitz')) {
-  console.log('ℹ️ Service Worker não disponível no StackBlitz - funcionalidade PWA limitada');
 }
 
 // Detectar se o app foi instalado como PWA
