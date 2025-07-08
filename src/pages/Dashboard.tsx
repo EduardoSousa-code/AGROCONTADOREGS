@@ -313,23 +313,23 @@ export default function Dashboard() {
                 {/* Card 1 - Resumo Financeiro */}
                 <FinancialSummary data={financialData} />
                 
-                {/* Card 2 - Estoque de Insumos */}
+                {/* Card 2 - Visão Financeira */}
+                <FinancialChart data={chartData} />
+                
+                {/* Card 3 - Estoque de Insumos */}
                 <InventoryStock data={stockData} />
                 
-                {/* Grid para Cards 3, 4 e 5 */}
+                {/* Grid para Cards 4 e 5 */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                  {/* Card 3 - Atividades Recentes */}
+                  {/* Card 4 - Atividades Recentes */}
                   <RecentActivities activities={recentActivities} />
                   
-                  {/* Card 4 - Alertas da IA */}
+                  {/* Card 5 - Alertas da IA */}
                   <AIAlerts 
                     alerts={[]} 
                     noAlertsMessage="A funcionalidade de alertas inteligentes será implementada em breve. Por enquanto, monitore seus dados através dos outros painéis."
                   />
                 </div>
-                
-                {/* Card 5 - Gráfico Financeiro */}
-                <FinancialChart data={chartData} />
 
                 {/* Mensagem quando não há dados */}
                 {revenues.length === 0 && expenses.length === 0 && supplies.length === 0 && activities.length === 0 && (
