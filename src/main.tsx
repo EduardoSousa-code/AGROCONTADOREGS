@@ -4,7 +4,7 @@ import App from './App.tsx';
 import './index.css';
 
 // Registrar Service Worker para PWA
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.location.hostname.includes('stackblitz')) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then((registration) => {
@@ -39,10 +39,13 @@ if ('serviceWorker' in navigator) {
     console.log('🔄 Service Worker atualizado, recarregando página...');
     window.location.reload();
   });
+} else if (window.location.hostname.includes('stackblitz')) {
+  console.log('ℹ️ Service Worker não disponível no StackBlitz - funcionalidade PWA limitada');
 }
 
 // Detectar se o app foi instalado como PWA
-window.addEventListener('beforeinstallprompt', (event) => {
+if (!window.location.hostname.includes('stackblitz')) {
+  window.addEventListener('beforeinstallprompt', (event) => {
   console.log('📱 PWA pode ser instalado');
   
   // Prevenir o prompt automático
@@ -53,10 +56,10 @@ window.addEventListener('beforeinstallprompt', (event) => {
   
   // Opcional: Mostrar botão de instalação customizado
   // showInstallButton();
-});
+  });
 
-// Detectar quando o PWA foi instalado
-window.addEventListener('appinstalled', () => {
+  // Detectar quando o PWA foi instalado
+  window.addEventListener('appinstalled', () => {
   console.log('🎉 PWA instalado com sucesso!');
   
   // Opcional: Esconder botão de instalação
@@ -64,7 +67,8 @@ window.addEventListener('appinstalled', () => {
   
   // Opcional: Mostrar mensagem de boas-vindas
   // showWelcomeMessage();
-});
+  });
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
