@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 // Páginas públicas
 import Login from './pages/Login';
@@ -91,6 +92,9 @@ function App() {
           {/* Rota 404 - redireciona para login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+        
+        {/* Prompt de instalação PWA */}
+        <PWAInstallPrompt />
       </BrowserRouter>
     </AuthProvider>
   );
